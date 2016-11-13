@@ -10,9 +10,9 @@ class nCrawler extends Module
 	{
 		$this->name		= 'ncrawler';
 		$this->tab 		= 'others';
-		$this->version 	= '0.0.1'; //версия модуля, например "2.0b", "3.04 beta 5" или "0.67 (для разработчика)"
-		$this->author 	= 'ncrawler.com'; //имя автора
-		$this->need_instance = 0; //открыть страницу настроек модуля сразу после установки или нет
+		$this->version 	= '0.0.1';
+		$this->author 	= 'ncrawler.com';
+		$this->need_instance = 0; // open module setting page after install
 
 		//$this->module_key = 'a4e3c26ec6e4316dccd6d7da5ca30411';
 		//$this->controllers = array('payment', 'validation');
@@ -20,7 +20,7 @@ class nCrawler extends Module
 		$this->ps_versions_compliancy['min'] = '1.5.0';
 
 		//$this->author_uri = 'http://addons.prestashop.com/ru/payments-gateways/5507-universal-payment-module.html';
-		$this->bootstrap = true; //использовать инструмент bootstrap для построения элементов модуля, рекомендую установить true
+		$this->bootstrap = true; // use bootstrap for creation module struct
 
 		parent::__construct();
 
