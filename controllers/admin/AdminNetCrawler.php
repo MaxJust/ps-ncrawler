@@ -16,10 +16,20 @@ class AdminNetCrawlerController extends ModuleAdminController
 		parent::__construct();
 	}
 
-	public function initContent()
-	{
-		$this->renderView();
-		return parent::initContent();
+//	public function init() {
+//		ppp('DIE INIT');
+//	}
+
+//	public function initContent()
+//	{
+//		ppp('DIEjjjjjjj INIT');
+//		$this->renderView();
+//		return parent::initContent();
+//	}
+
+	public function ajaxProcessTest() {
+		echo Tools::jsonEncode(array('use_parent_structure' => false, 'data' => 'TEST DATA 2 '));
+		exit;
 	}
 
 	public function renderView()
@@ -27,6 +37,22 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$tpl = $this->context->smarty->createTemplate(_PS_MODULE_DIR_ . '/ncrawler/views/templates/admin/table.tpl');
 		return $tpl->fetch();
 	}
+
+//	public function ajaxProcessMyFunction() {
+//
+//		// Get param
+//		$mydata = (int)Tools::getValue('mydata');
+//
+//		$answer = 'just a test';
+//
+//		if( $mydata > 0 ) {}
+//
+//		// Response
+//		die(Tools::jsonEncode(array(
+//			'answer' => htmlspecialchars($answer)
+//		)));
+//
+//	}
 
 }
 

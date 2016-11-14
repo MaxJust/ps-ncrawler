@@ -60,8 +60,8 @@ class nCrawler extends Module
 	}
 
 	public function hookActionAdminControllerSetMedia($params) {
-		$this->context->controller->addJS($this->_path . 'views/css/datatables.min.css');
-		$this->context->controller->addJS($this->_path . 'views/css/ncrawler.css');
+		$this->context->controller->addCSS($this->_path . 'views/css/datatables.min.css');
+		$this->context->controller->addCSS($this->_path . 'views/css/ncrawler.css');
 
 		$this->context->controller->addJS($this->_path . 'views/js/datatables.min.js');
 		$this->context->controller->addJS($this->_path . 'views/js/ncrawler.js');
