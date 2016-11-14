@@ -3,6 +3,10 @@
 class AdminNetCrawlerController extends ModuleAdminController
 {
 
+	private $nc_access_login 	= '';
+	private $nc_access_token 	= '';
+	private $nc_access_url 		= '';
+
 	public function __construct()
 	{
 		$this->module		= 'ncrawler';
@@ -14,6 +18,11 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->display 		= 'view';
 
 		parent::__construct();
+
+		$config = Configuration::getMultiple([nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL]);
+		$this->nc_access_login 	= $config[nCrawler::NC_ACCESS_LOGIN];
+		$this->nc_access_token 	= $config[nCrawler::NC_ACCESS_TOKEN];
+		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
 	}
 
 //	public function init() {
@@ -30,9 +39,8 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessTest() {
 
 		$productObj = new Product();
-		$products = $productObj->getProducts($this->context->language->id, 0, 20, 'id_product', 'DESC', false, false);
+		$products = $productObj->getProducts($this->context->language->id, 0, 10, 'id_product', 'DESC', false, false);
 
-		/** @var Product $product */
 		$prod_json = [];
 		foreach($products as $product) {
 
@@ -48,7 +56,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 				'actions'		=> '',
 				'full_url'		=> $url,
 			];
-			$q = $product;
+//			$q = $product;
 //			break;
 		}
 
@@ -56,7 +64,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 			'use_parent_structure' 	=> false,
 			'products' 				=> $prod_json,
 			'p_nums' 				=> count($products),
-			'q' 					=> $q,
+//			'q' 					=> $q,
 		]);
 
 		exit;
@@ -65,6 +73,9 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function renderView()
 	{
 		$tpl = $this->context->smarty->createTemplate(_PS_MODULE_DIR_ . '/ncrawler/views/templates/admin/table.tpl');
+		$tpl->assign('login', $this->nc_access_login);
+		$tpl->assign('token', $this->nc_access_token);
+		$tpl->assign('url', $this->nc_access_url);
 		return $tpl->fetch();
 	}
 

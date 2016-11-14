@@ -1,8 +1,20 @@
-<p>nCrawler.com price suggests</p>
+<h2>nCrawler.com price suggests</h2>
 
-<div>
-	<div>nCrawler Access Token (nCAT): <input type="text" placeholder="paste your token"></div>
+<div style="clear: both"></div>
+
+<div style="width: 300px;overflow: hidden;float: left;">
+	<h3>nCrawler Access Settings (nCAS):</h3>
+	<div>Login: {$login}</div>
+	<div>Token: {$token}</div>
+	<div>Url: {$url}</div>
 </div>
+
+<div style="width: 300px;overflow: hidden;float: left;">
+	<h3>Products Synchronization:</h3>
+	<div>ReSet my matirsx</div>
+</div>
+
+<div style="clear: both;"></div>
 
 <table id="mainProductList" class="hover">
 	<thead>
