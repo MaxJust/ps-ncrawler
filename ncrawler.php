@@ -5,6 +5,7 @@ if (!defined('_PS_VERSION_'))
 
 class nCrawler extends Module
 {
+	const ADMIN_TAB_NAME = 'AdminNetCrawler';
 
 	public function __construct()
 	{
@@ -41,18 +42,31 @@ class nCrawler extends Module
 	 */
 	public function install()
 	{
-		if (Shop::isFeatureActive()) //если несколько магазинов, то включаем модуль для всех
-			Shop::setContext(Shop::CONTEXT_ALL);
+//		if (Shop::isFeatureActive()) //если несколько магазинов, то включаем модуль для всех
+//			Shop::setContext(Shop::CONTEXT_ALL);
 
-		//установка модуля и привязка его к необходимым хукам, в которых он будет использован, создание конфигурации для модуля в базе данных
-		if (!parent::install() || //установлен ли родительский класс
-			!$this->registerHook('top') || //модуль прикрепился к хуку 'top'
-			!$this->registerHook('header') || //модуль прикрепился к хуку 'header'
-			!$this->registerHook('nav') || //модуль прикрепился к хуку 'nav'
-			!Configuration::updateValue('NCRAWLER', 'my value') //создаём конфигурацию 'NCRAWLER' со значением 'my value'
-		) return false;
+		return
+			parent::install() 				&&
+			$this->registerHook('top') 		&&
+			$this->registerHook('header') 	&&
+			$this->registerHook('nav') 		&&
+			Configuration::updateValue('NCRAWLER', 'my value') &&
+			self::installModuleTab(self::ADMIN_TAB_NAME,
+				[
+					'ru' => 'Платежные системы',
+					'default' => 'Pay Systems',
+					'it' => 'Metodi di pagamento'
+				],'AdminParentModules');
 
-		return true;
+//		//установка модуля и привязка его к необходимым хукам, в которых он будет использован, создание конфигурации для модуля в базе данных
+//		if (!parent::install() || //установлен ли родительский класс
+//			!$this->registerHook('top') || //модуль прикрепился к хуку 'top'
+//			!$this->registerHook('header') || //модуль прикрепился к хуку 'header'
+//			!$this->registerHook('nav') || //модуль прикрепился к хуку 'nav'
+//			!Configuration::updateValue('NCRAWLER', 'my value') //создаём конфигурацию 'NCRAWLER' со значением 'my value'
+//		) return false;
+//
+//		return true;
 	}
 
 
@@ -62,8 +76,63 @@ class nCrawler extends Module
 	 */
 	public function uninstall()
 	{
-		if (!parent::uninstall() || !Configuration::deleteByName('NCRAWLER')) return false;
+
+		self::uninstallModuleTab(self::ADMIN_TAB_NAME);
+
+		return
+			parent::uninstall() &&
+			Configuration::deleteByName('NCRAWLER');
+
+//			self::rrmdir(_PS_IMG_DIR_ . 'pay') &&
+//		if (!parent::uninstall() || !Configuration::deleteByName('NCRAWLER')) return false;
+//		return true;
+	}
+
+
+	/**
+	 * @param $tab_class
+	 * @param $tab_name
+	 * @param $tab_parent
+	 * @return bool
+	 */
+	private function installModuleTab($tab_class, $tab_name, $tab_parent)
+	{
+		if (!($id_tab_parent = Tab::getIdFromClassName($tab_parent))) {return false;}
+
+		$tab = new Tab();
+		$languages = Language::getLanguages(true);
+		foreach ($languages as $language) {
+			if (!isset($tab_name[$language['iso_code']])) {
+				$tab->name[$language['id_lang']] = $tab_name['default'];
+			} else {
+				$tab->name[(int)$language['id_lang']] = $tab_name[$language['iso_code']];
+			}
+		}
+		$tab->class_name	= $tab_class;
+		$tab->module 		= $this->name;
+		$tab->id_parent 	= $id_tab_parent;
+		$tab->active 		= 1;
+
+		if (!$tab->save()) return false;
 
 		return true;
 	}
+
+	/**
+	 * @param $tab_class
+	 * @return bool
+	 */
+	private function uninstallModuleTab($tab_class)
+	{
+		$id_tab = Tab::getIdFromClassName($tab_class);
+
+		if ($id_tab != 0) {
+			$tab = new Tab($id_tab);
+			$tab->delete();
+			return true;
+		}
+
+		return false;
+	}
+
 }
