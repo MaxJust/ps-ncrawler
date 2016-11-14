@@ -28,7 +28,37 @@ class AdminNetCrawlerController extends ModuleAdminController
 //	}
 
 	public function ajaxProcessTest() {
-		echo Tools::jsonEncode(array('use_parent_structure' => false, 'data' => 'TEST DATA 2 '));
+
+		$productObj = new Product();
+		$products = $productObj->getProducts($this->context->language->id, 0, 20, 'id_product', 'DESC', false, false);
+
+		/** @var Product $product */
+		$prod_json = [];
+		foreach($products as $product) {
+
+			$link = new Link();
+			$url = $link->getProductLink($product['id_product']);
+
+			$prod_json[] = [
+				'RowID'		 	=> $product['id_product'],
+				'name' 			=> $product['name'],
+				'current_price'	=> number_format($product['price'], 2, '.', ' '),
+				'suggest_price'	=> 0,
+				'watcher_name'	=> '',
+				'actions'		=> '',
+				'full_url'		=> $url,
+			];
+			$q = $product;
+//			break;
+		}
+
+		echo Tools::jsonEncode([
+			'use_parent_structure' 	=> false,
+			'products' 				=> $prod_json,
+			'p_nums' 				=> count($products),
+			'q' 					=> $q,
+		]);
+
 		exit;
 	}
 

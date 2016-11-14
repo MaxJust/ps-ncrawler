@@ -1,7 +1,11 @@
 nCrawler = {
 	IsInit : false,
-	selectors : {},
-	pointers : {},
+	selectors : {
+		mainTable : null
+	},
+	pointers : {
+		mainTable : null
+	},
 	controller : null,
 	data : {
 		ajax 	: true,
@@ -12,19 +16,67 @@ nCrawler = {
 	Init : function() {
 		var me = this;
 		if(me.IsInit) return;
-		me.parseUrl();
 
-		me.requestData();
+		me.parseUrl();
+		me.initPointers();
+
+		me.requestData(function (response) {
+			me.renderMainTable(response['products']);
+		});
 
 		console.log('nCrawler js inited');
 		me.IsInit = true;
 	},
 
-	requestData : function() {
+	renderMainTable : function(data) {
+		var me = this;
+
+		console.log('render table', data);
+
+		me.pointers.mainTable = me.selectors.mainTable.DataTable({
+			destroy : true,
+			// order: [[ 3, "desc" ]],
+			//responsive: true,
+			oLanguage: {
+				sSearch: '',
+				sSearchPlaceholder: 'Фильтр по таблице',
+				sInfo: "с _START_ по _END_ из _TOTAL_",
+				oPaginate : {sPrevious: "Предыдущая",sNext: "Следующая"},
+				sEmptyTable: "Ничего не найдено",
+				sInfoEmpty: "Нечего показывать",
+				sLengthMenu: "_MENU_"
+			},
+			columns : [
+				{data : 'name'},
+				{data : 'current_price'},
+				{data : 'suggest_price'},
+				{data : 'watcher_name'},
+				{data : 'actions'}
+			],
+			pageLength : 25,
+			lengthMenu : [25, 50, 100],
+			data : data,
+			dom: '<"top"<"col-lg-5 sub-table-filter"f><"col-lg-6"<"pull-right"p><"pull-right margin-right-10"i>><"col-lg-1"l><"clear">>rt<"top"<"col-lg-5 sub-table-filter"f><"col-lg-6"<"pull-right"p><"pull-right margin-right-10"i>><"col-lg-1"l><"clear">>',
+			fnCreatedRow : function(nRow, aData, iDataIndex) {
+				// jQuery(nRow).attr('data-key', aData['Data_Key']).attr('data-type', aData['Data_Type'])
+			},
+			fnDrawCallback: function(settings) {
+				// console.log('render from init');
+				// var middle_price = {name : 'Средняя цена',type : 'spline',data : []};
+				// var price_range = {name : 'Цена от - до',type : 'columnrange',data : []};
+				// var quantity = {name : 'Кол-во позиций',type : 'column',yAxis : 1,pointPadding: 0.3,data : []};
+				// var categories = [];
+			}
+		});
+
+	},
+
+	requestData : function(callback) {
 		var me = this;
 
 		$.ajax({
 			url : 'index.php?controller=' + me.controller,
+			dataType : 'json',
 			data : {
 				ajax 	: true,
 				action 	: 'Test',
@@ -32,6 +84,7 @@ nCrawler = {
 			},
 			success : function(response) {
 				console.log('success', response);
+				if(typeof callback == 'function') callback(response)
 			}
 		});
 
@@ -52,6 +105,12 @@ nCrawler = {
 		me.controller = result.controller;
 		me.data.token = result.token;
 		return result;
+	},
+
+	initPointers : function() {
+		var me = this;
+
+		me.selectors.mainTable = jQuery('#mainProductList');
 	}
 
 };
