@@ -47,28 +47,25 @@ class nCrawler extends Module
 
 		return
 			parent::install() 				&&
-			$this->registerHook('top') 		&&
-			$this->registerHook('header') 	&&
-			$this->registerHook('nav') 		&&
+//			$this->registerHook('top') 		&&
+//			$this->registerHook('header') 	&&
+//			$this->registerHook('nav') 		&&
+			$this->registerHook('actionAdminControllerSetMedia') &&
 			Configuration::updateValue('NCRAWLER', 'my value') &&
 			self::installModuleTab(self::ADMIN_TAB_NAME,
 				[
-					'ru' => 'Платежные системы',
-					'default' => 'Pay Systems',
-					'it' => 'Metodi di pagamento'
+					'ru' 		=> 'nCrawler.com',
+					'default' 	=> 'nCrawler.com',
 				],'AdminParentModules');
-
-//		//установка модуля и привязка его к необходимым хукам, в которых он будет использован, создание конфигурации для модуля в базе данных
-//		if (!parent::install() || //установлен ли родительский класс
-//			!$this->registerHook('top') || //модуль прикрепился к хуку 'top'
-//			!$this->registerHook('header') || //модуль прикрепился к хуку 'header'
-//			!$this->registerHook('nav') || //модуль прикрепился к хуку 'nav'
-//			!Configuration::updateValue('NCRAWLER', 'my value') //создаём конфигурацию 'NCRAWLER' со значением 'my value'
-//		) return false;
-//
-//		return true;
 	}
 
+	public function hookActionAdminControllerSetMedia($params) {
+		$this->context->controller->addJS($this->_path . 'views/css/datatables.min.css');
+		$this->context->controller->addJS($this->_path . 'views/css/ncrawler.css');
+
+		$this->context->controller->addJS($this->_path . 'views/js/datatables.min.js');
+		$this->context->controller->addJS($this->_path . 'views/js/ncrawler.js');
+	}
 
 	/**
 	 * uninstall module
@@ -87,6 +84,25 @@ class nCrawler extends Module
 //		if (!parent::uninstall() || !Configuration::deleteByName('NCRAWLER')) return false;
 //		return true;
 	}
+
+//	public function hookHeader()
+//	{
+//		$this->context->controller->addCSS(($this->_path).'views/css/ncrawler.css', 'all');
+//		$this->context->controller->addJS(($this->_path).'view/js/ncrawler.js');
+//	}
+
+
+//	/**
+//	 * after install content
+//	 * @return string
+//	 */
+//	public function getContent()
+//	{
+//		$output = 'фывфывжфдылвдл';
+////		$output .= $this->postProcess();
+////		$output .= $this->renderSettingsForm();
+//		return $output;
+//	}
 
 
 	/**
