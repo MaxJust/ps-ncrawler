@@ -12,6 +12,7 @@
 <div style="width: 300px;overflow: hidden;float: left;">
 	<h3>Products Synchronization:</h3>
 	<div>ReSet my matirsx</div>
+	<a id="reSendProducts" href="#">resend</a>
 </div>
 
 <div style="clear: both;"></div>

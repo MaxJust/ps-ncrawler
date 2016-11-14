@@ -1,7 +1,8 @@
 nCrawler = {
 	IsInit : false,
 	selectors : {
-		mainTable : null
+		mainTable 		: null,
+		reSendProducts 	: null
 	},
 	pointers : {
 		mainTable : null
@@ -22,6 +23,24 @@ nCrawler = {
 
 		me.requestData(function (response) {
 			me.renderMainTable(response['products']);
+		});
+
+		me.selectors.reSendProducts.on('click', function() {
+			swal({
+				title: 'Are you sure?',
+				text: "You won't be able to revert this!",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Yes, delete it!'
+			}).then(function () {
+				swal(
+					'Deleted!',
+					'Your file has been deleted.',
+					'success'
+				)
+			})
 		});
 
 		console.log('nCrawler js inited');
@@ -111,6 +130,7 @@ nCrawler = {
 		var me = this;
 
 		me.selectors.mainTable = jQuery('#mainProductList');
+		me.selectors.reSendProducts = jQuery('#reSendProducts');
 	}
 
 };
