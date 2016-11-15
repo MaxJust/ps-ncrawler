@@ -83,21 +83,38 @@ nCrawler = {
 		me.pointers.rebindProgress.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 		me.pointers.rebindProgress.text.style.fontSize = '12px';
 
-		// jQuery('#username').editable({
-		// 	mode: 'inline',
-		// 	showbuttons : false,
-		// 	type: 'text',
-		// 	title: 'Новое значение'
-		// });
+		// Save products
+		jQuery('#content').on('click', '.saveProducts', function(e) {
+			e.preventDefault();
+			swal({
+				title: 'Сохранить данные?',
+				text: "Это действие сохранит данные из поля 'конечная цена' (endprice) в базу, все продукты в таблице будут обновлены",
+				type: 'warning',
+				showCancelButton	: true,
+				confirmButtonColor	: '#3085d6',
+				cancelButtonColor	: '#d33',
+				cancelButtonText	: 'Нет, я передумал',
+				confirmButtonText	: 'Да, я понимаю!'
+			}).then(function () {
+				me.saveProducts();
+			}, function (dismiss) {
+				// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
+				if (dismiss === 'cancel') {console.log('save canceled');}
+			});
+		});
 
 		console.log('nCrawler inited successfully');
 		me.IsInit = true;
 	},
 
+	saveProducts : function() {
+		console.log('save process');
+	},
+
 	rebindProductsData : function () {
 		var me = this;
 		me.data.action = 'ResendProductsData';
-		console.log('current requerst page', me.data.page);
+		console.log('current request page', me.data.page);
 
 		me.data.page++;
 		me.requestData(function (response) {
@@ -183,7 +200,10 @@ nCrawler = {
 			pageLength : 25,
 			lengthMenu : [25, 50, 100],
 			data : data,
-			dom: '<"main-list-top"<f><p><l>>rt',
+			dom: '<"main-list-top"<f><p><l><"saveWrap">>rt',
+			initComplete : function() {
+				jQuery('#content').find('.saveWrap').html('<a href="#" class="saveProducts">Сохранить данные</a>')
+			},
 			fnCreatedRow : function(nRow, aData, iDataIndex) {
 				jQuery(nRow).attr('data-product-id', aData['RowID']);
 			},
