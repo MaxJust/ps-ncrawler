@@ -7,11 +7,13 @@ nCrawler = {
 	pointers : {
 		mainTable : null
 	},
-	controller : null,
+	controller 		: null,
+	products_total 	: 0,
 	data : {
 		ajax 	: true,
-		action 	: 'Test',
-		token 	: null
+		action 	: null,
+		token 	: null,
+		page	: 0
 	},
 
 	Init : function() {
@@ -21,30 +23,68 @@ nCrawler = {
 		me.parseUrl();
 		me.initPointers();
 
-		me.requestData(function (response) {
-			me.renderMainTable(response['products']);
-		});
+		// me.requestData(function (response) {
+		// 	me.renderMainTable(response['products']);
+		// });
 
 		me.selectors.reSendProducts.on('click', function() {
 			swal({
-				title: 'Are you sure?',
-				text: "You won't be able to revert this!",
+				title: 'Пересвязать данные ?',
+				text: "Идентификационные данные ваших продуктов будут обновлены на центральном сервере nCrawler.com",
 				type: 'warning',
-				showCancelButton: true,
-				confirmButtonColor: '#3085d6',
-				cancelButtonColor: '#d33',
-				confirmButtonText: 'Yes, delete it!'
+				showCancelButton	: true,
+				confirmButtonColor	: '#3085d6',
+				cancelButtonColor	: '#d33',
+				cancelButtonText	: 'Нет, я передумал',
+				confirmButtonText	: 'Да, обновить!'
 			}).then(function () {
-				swal(
-					'Deleted!',
-					'Your file has been deleted.',
-					'success'
-				)
-			})
+				me.data.page = 0;
+				me.rebindProductsData();
+			}, function (dismiss) {
+				if (dismiss === 'cancel') {console.log('canceledd');}	// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
+			});
 		});
+
+		me.getMatchersList();
+		me.getProductQuantity();
 
 		console.log('nCrawler js inited');
 		me.IsInit = true;
+	},
+
+	rebindProductsData : function () {
+		var me = this;
+		me.data.action = 'ResendProductsData';
+		console.log('current requerst page', me.data.page);
+
+		me.data.page++;
+		me.requestData(function (response) {
+			if(response.type != 'success') {alert('ERROR');return;}
+
+			if(me.data.page <= me.products_total / 1000) {
+				me.rebindProductsData();
+			}
+		});
+	},
+
+	getProductQuantity : function () {
+		var me = this;
+		me.products_total = 0;
+		me.data.action = 'GetProductsQuantity';
+
+		me.requestData(function(response) {
+			if(response.type != 'success') {
+				alert('Error');
+				return;
+			}
+			me.products_total = parseInt(response['prod_quant']);
+		});
+	},
+
+	getMatchersList : function() {
+		var me = this;
+		me.data.action = 'GetMatchers';
+		me.requestData(function (response) {console.log('list-response', response);})
 	},
 
 	renderMainTable : function(data) {
@@ -96,11 +136,7 @@ nCrawler = {
 		$.ajax({
 			url : 'index.php?controller=' + me.controller,
 			dataType : 'json',
-			data : {
-				ajax 	: true,
-				action 	: 'Test',
-				token 	: me.data.token
-			},
+			data : me.data,
 			success : function(response) {
 				console.log('success', response);
 				if(typeof callback == 'function') callback(response)

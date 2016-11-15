@@ -15,6 +15,11 @@
 	<a id="reSendProducts" href="#">resend</a>
 </div>
 
+<div style="width: 300px;overflow: hidden;float: left;">
+	<h3>Matcher Lists:</h3>
+	<select id="matchersList" title=""></select>
+</div>
+
 <div style="clear: both;"></div>
 
 <table id="mainProductList" class="hover">

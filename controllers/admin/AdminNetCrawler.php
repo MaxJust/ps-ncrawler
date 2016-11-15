@@ -25,17 +25,79 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
 	}
 
-//	public function init() {
-//		ppp('DIE INIT');
-//	}
+	/**
+	 * Rebind products on nCrawler.com server
+	 */
+	public function ajaxProcessResendProductsData() {
+		$url = $this->generateNetCrawlerAccessUrl('matchers', 'rebind-products');
 
-//	public function initContent()
-//	{
-//		ppp('DIEjjjjjjj INIT');
-//		$this->renderView();
-//		return parent::initContent();
-//	}
+		$page_size = 10;
 
+		$page = intval(Tools::getValue('page'));
+		if(empty($page)) {
+			echo Tools::jsonEncode([
+				'action' 	=> 'ResendProductsData',
+				'type'		=> 'error',
+				'message'	=> 'wrong page number',
+			]);
+			exit;
+		}
+
+		$bind_data = [];
+		$productObj = new Product();
+		$products = $productObj->getProducts($this->context->language->id, $page_size * ($page - 1), $page_size, 'id_product', 'DESC', false, false);
+		foreach($products as $product) {
+			$link = new Link();
+			$bind_data[$product['id_product']] = $link->getProductLink($product['id_product']);
+		}
+
+		$nc_response = self::curlRequest($url, $bind_data);
+
+		echo Tools::jsonEncode([
+			'action' 		=> 'ResendProductsData',
+			'type'			=> 'success',
+			'url'			=> $url,
+			'nc_response' 	=> $nc_response,
+			'page'	 		=> $page,
+		]);
+		exit;
+	}
+
+	/**
+	 * Get Matchers List Ajax Callback
+	 */
+	public function ajaxProcessGetMatchers() {
+		$url = 'https://ncrawler.com:555/api/matchers/d41d8cd98f00b204e9800998ecf8427e/6393905@gmail.com/get-list';
+		$data = self::curlRequest($url);
+		echo Tools::jsonEncode([
+			'action' 	=> 'get-matchers',
+			'data'	 	=> $data,
+		]);
+		exit;
+	}
+
+	/**
+	 * Get Active product quantity
+	 */
+	public function ajaxProcessGetProductsQuantity() {
+		$sql = 'SELECT count(*) as prod_quant FROM ' . _DB_PREFIX_ . 'product WHERE active = 1';
+		if ($results = Db::getInstance()->ExecuteS($sql)) {
+			echo Tools::jsonEncode([
+				'type'			=> 'success',
+				'prod_quant' 	=> $results[0]['prod_quant'],
+			]);
+		} else {
+			echo Tools::jsonEncode([
+				'type'			=> 'error',
+				'prod_quant' 	=> 0,
+			]);
+		}
+		exit;
+	}
+
+	/**
+	 * TEST CALLBACK
+	 */
 	public function ajaxProcessTest() {
 
 		$productObj = new Product();
@@ -56,20 +118,21 @@ class AdminNetCrawlerController extends ModuleAdminController
 				'actions'		=> '',
 				'full_url'		=> $url,
 			];
-//			$q = $product;
-//			break;
 		}
 
 		echo Tools::jsonEncode([
 			'use_parent_structure' 	=> false,
 			'products' 				=> $prod_json,
 			'p_nums' 				=> count($products),
-//			'q' 					=> $q,
 		]);
 
 		exit;
 	}
 
+	/**
+	 * Render view
+	 * @return mixed
+	 */
 	public function renderView()
 	{
 		$tpl = $this->context->smarty->createTemplate(_PS_MODULE_DIR_ . '/ncrawler/views/templates/admin/table.tpl');
@@ -79,27 +142,76 @@ class AdminNetCrawlerController extends ModuleAdminController
 		return $tpl->fetch();
 	}
 
-//	public function ajaxProcessMyFunction() {
-//
-//		// Get param
-//		$mydata = (int)Tools::getValue('mydata');
-//
-//		$answer = 'just a test';
-//
-//		if( $mydata > 0 ) {}
-//
-//		// Response
-//		die(Tools::jsonEncode(array(
-//			'answer' => htmlspecialchars($answer)
-//		)));
-//
-//	}
+	/**
+	 * Helper - makre curl request
+	 * @param $full_url
+	 * @param array $data
+	 * @param int $max_sec
+	 * @return mixed
+	 */
+	static private function curlRequest($full_url, $data = array(), $max_sec = 60) {
+
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($curl, CURLOPT_TIMEOUT, $max_sec);
+		curl_setopt($curl, CURLOPT_URL, $full_url);
+		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+
+		$curl_result= curl_exec($curl);
+		$curl_code 	= curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+		if ($curl_code >= 200 && $curl_code <= 203) {
+			$result = json_decode($curl_result, true);
+			$result['status'] 	= 'success';
+		} else {
+			$result['status'] 	= 'error';
+			$result['message'] 	= 'Error wrong CURL Code ' . $curl_code . ' in query ' . $full_url;
+			return $result;
+		}
+
+		$result['curl']['code'] 	= $curl_code;
+		$result['curl']['error'] 	= curl_errno($curl);
+		$result['curl']['raw']		= $curl_result;
+		return $result;
+	}
+
+	/**
+	 *
+	 * Helper to create access url to nCrawler.com
+	 * @param $section
+	 * @param $sub_action
+	 * @return string
+	 */
+	private function generateNetCrawlerAccessUrl($section, $sub_action) {
+
+		$parts = [
+			trim($this->nc_access_url, '/'),
+			trim($section, '/'),
+			trim($this->nc_access_token, '/'),
+			trim($this->nc_access_login, '/'),
+			trim($sub_action, '/'),
+		];
+
+		$url = join('/', $parts);
+		return $url;
+	}
 
 }
 
 
 
+//	public function init() {
+//		ppp('DIE INIT');
+//	}
 
+//	public function initContent()
+//	{
+//		ppp('DIEjjjjjjj INIT');
+//		$this->renderView();
+//		return parent::initContent();
+//	}
 //		$this->base_tpl_view = 'table.tpl';
 //		return parent::renderView();
 //		$this->base_tpl_view	= 'table.tpl';
