@@ -80,8 +80,9 @@ class AdminNetCrawlerController extends ModuleAdminController
 	 * Get Matchers List Ajax Callback
 	 */
 	public function ajaxProcessGetMatchers() {
-		$url = 'https://ncrawler.com:555/api/matchers/d41d8cd98f00b204e9800998ecf8427e/6393905@gmail.com/get-list';
-		$data = self::curlRequest($url);
+//		$url = 'https://ncrawler.com:555/api/matchers/d41d8cd98f00b204e9800998ecf8427e/6393905@gmail.com/get-list';
+		$url	= self::generateNetCrawlerAccessUrl('matchers', 'get-list');
+		$data 	= self::curlRequest($url);
 		echo Tools::jsonEncode([
 			'action' 	=> 'get-matchers',
 			'data'	 	=> $data,
@@ -114,13 +115,12 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessTest() {
 
 		$productObj = new Product();
-		$products = $productObj->getProducts($this->context->language->id, 0, 10, 'id_product', 'DESC', false, false);
+		$products = $productObj->getProducts($this->context->language->id, 0, 100, 'id_product', 'DESC', false, false);
 
 		$prod_json = [];
 		foreach($products as $product) {
-
-			$link = new Link();
-			$url = $link->getProductLink($product['id_product']);
+//			$link = new Link();
+//			$url = $link->getProductLink($product['id_product']);
 
 			$prod_json[] = [
 				'RowID'		 	=> $product['id_product'],
@@ -129,7 +129,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 				'suggest_price'	=> 0,
 				'watcher_name'	=> '',
 				'actions'		=> '',
-				'full_url'		=> $url,
 			];
 		}
 

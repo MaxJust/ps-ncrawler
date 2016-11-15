@@ -25,9 +25,10 @@ nCrawler = {
 		me.parseUrl();
 		me.initPointers();
 
-		// me.requestData(function (response) {
-		// 	me.renderMainTable(response['products']);
-		// });
+		me.data.action = 'Test';
+		me.requestData(function (response) {
+			me.renderMainTable(response['products']);
+		});
 
 		me.selectors.reSendProducts.on('click', function() {
 			swal({
@@ -139,7 +140,10 @@ nCrawler = {
 	getMatchersList : function() {
 		var me = this;
 		me.data.action = 'GetMatchers';
-		me.requestData(function (response) {console.log('list-response', response);})
+		me.requestData(function (response) {
+
+			console.log('list-response', response);
+		})
 	},
 
 	renderMainTable : function(data) {
