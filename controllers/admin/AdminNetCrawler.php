@@ -19,6 +19,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->display 		= 'view';
 
 		parent::__construct();
+//		$this->context->controller->addCSS(_PS_MODULE_DIR_ . '/views/css/bootstrap.min.css');
 
 		$config = Configuration::getMultiple([nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL, nCrawler::NC_SOURCE_SLD]);
 		$this->nc_access_login 	= $config[nCrawler::NC_ACCESS_LOGIN];
@@ -26,6 +27,12 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
 		$this->nc_source_sld	= $config[nCrawler::NC_SOURCE_SLD];
 	}
+
+
+//	public function setMedia() {
+//		parent::setMedia();
+//		$this->context->controller->addCss($this->path . '/views/css/bootstrap.min.css');
+//	}
 
 	/**
 	 * Rebind products on nCrawler.com server
@@ -112,30 +119,83 @@ class AdminNetCrawlerController extends ModuleAdminController
 	/**
 	 * TEST CALLBACK
 	 */
-	public function ajaxProcessTest() {
+	public function ajaxProcessGetAllProducts() {
 
-		$productObj = new Product();
-		$products = $productObj->getProducts($this->context->language->id, 0, 100, 'id_product', 'DESC', false, false);
+//		$productObj = new Product();
+//		$products = $productObj->getProducts($this->context->language->id, 0, 100, 'id_product', 'DESC', false, false);
+//
+//		$prod_json = [];
+//		foreach($products as $product) {
+////			$link = new Link();
+////			$url = $link->getProductLink($product['id_product']);
+//
+//			$status = 'Неизвестно';
+//
+////			if()
+//
+//			$prod_json[] = [
+//				'RowID'		 	=> $product['id_product'],
+//				'name' 			=> $product['name'],
+//				'current_price'	=> number_format($product['price'], 2, '.', ' '),
+//				'suggest_price'	=> 0,
+//				'end_price'		=> '',
+//				'status'		=> $status,
+//				'actions'		=> '',
+//			];
+//		}
+		$full_url = self::generateNetCrawlerAccessUrl('matchers', 'get-all-products');
+		$response = self::curlRequest($full_url, ['site' => $this->nc_source_sld]);
 
+		if($response['type'] != 'success' || empty($response['pids']) || empty($response['products'])) {
+			echo Tools::jsonEncode($response);
+			exit;
+		}
+
+		$pids 		= $response['pids'];
+		$products	= $response['products'];
+
+		// Get data from local DB
+		$sql = 'SELECT id_product, price FROM ' . _DB_PREFIX_ . 'product WHERE id_product IN ('.implode(',', $pids).') ';
+		$db_results = Db::getInstance()->ExecuteS($sql);
+		if(empty($db_results)) {
+			echo Tools::jsonEncode(['type' => 'empty', 'total' => 0,]);
+			exit;
+		}
+
+		// Generate products table
 		$prod_json = [];
-		foreach($products as $product) {
-//			$link = new Link();
-//			$url = $link->getProductLink($product['id_product']);
+		foreach($db_results as $product) {
+
+			$current_price = $product['price'];
+			$suggest_price =  $products[$product['id_product']]['actual_price'];
+
+			if(empty($suggest_price)) continue;
+
+			if($current_price < $suggest_price) {
+				$status = 'low_profit';
+			} elseif($current_price > $suggest_price) {
+				$status = 'bad';
+			} else {
+				$status = 'optimal';
+			}
 
 			$prod_json[] = [
 				'RowID'		 	=> $product['id_product'],
-				'name' 			=> $product['name'],
-				'current_price'	=> number_format($product['price'], 2, '.', ' '),
-				'suggest_price'	=> 0,
-				'watcher_name'	=> '',
+				'name' 			=> $products[$product['id_product']]['title'],
+				'url' 			=> $products[$product['id_product']]['url'],
+				'current_price'	=> number_format($current_price, 2, '.', ' '),
+				'suggest_price'	=> number_format($suggest_price, 2, '.', ' '),
+				'end_price'		=> '<span class="endPrice editable">' . $suggest_price . '</span>',
+				'status'		=> $status,
 				'actions'		=> '',
 			];
 		}
 
 		echo Tools::jsonEncode([
-			'use_parent_structure' 	=> false,
-			'products' 				=> $prod_json,
-			'p_nums' 				=> count($products),
+			'pids'		=> $response['pids'],
+			'DT'		=> $prod_json,
+			'products' 	=> $response['products'],
+			'total' 	=> count($response['products']),
 		]);
 
 		exit;
@@ -169,6 +229,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		curl_setopt($curl, CURLOPT_TIMEOUT, $max_sec);
 		curl_setopt($curl, CURLOPT_URL, $full_url);
 		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 
 		$curl_result= curl_exec($curl);
@@ -176,16 +237,14 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		if ($curl_code >= 200 && $curl_code <= 203) {
 			$result = json_decode($curl_result, true);
-			$result['status'] 	= 'success';
 		} else {
-			$result['status'] 	= 'error';
-			$result['message'] 	= 'Error wrong CURL Code ' . $curl_code . ' in query ' . $full_url;
-			return $result;
+			if(empty($result['type'])) $result['type'] = 'error';
+			$result['message'] 	= 'Error wrong CURL Code ' . $curl_code . ' in query: ' . $full_url;
 		}
 
 		$result['curl']['code'] 	= $curl_code;
 		$result['curl']['error'] 	= curl_errno($curl);
-		$result['curl']['raw']		= $curl_result;
+//		$result['curl']['raw']		= $curl_result;
 		return $result;
 	}
 

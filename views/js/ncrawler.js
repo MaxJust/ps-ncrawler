@@ -25,14 +25,14 @@ nCrawler = {
 		me.parseUrl();
 		me.initPointers();
 
-		me.data.action = 'Test';
+		me.data.action = 'GetAllProducts';
 		me.requestData(function (response) {
-			me.renderMainTable(response['products']);
+			me.renderMainTable(response['DT']);
 		});
 
 		me.selectors.reSendProducts.on('click', function() {
 			swal({
-				title: 'Пересвязать данные ?',
+				title: 'Пересвязать данные?',
 				text: "Идентификационные данные ваших продуктов будут обновлены на центральном сервере nCrawler.com",
 				type: 'warning',
 				showCancelButton	: true,
@@ -44,9 +44,11 @@ nCrawler = {
 				me.data.page = 0;
 				me.selectors.rebindProgress.fadeIn();
 				me.selectors.reSendProducts.hide();
-				me.rebindProductsData();
+				me.getProductQuantity(function (response) {me.rebindProductsData();});
+
 			}, function (dismiss) {
-				if (dismiss === 'cancel') {console.log('canceledd');}	// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
+				// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
+				if (dismiss === 'cancel') {console.log('canceled');}
 			});
 		});
 
@@ -77,13 +79,18 @@ nCrawler = {
 			}
 		});
 
-		me.getMatchersList();
-		me.getProductQuantity();
-
+		// me.getMatchersList();
 		me.pointers.rebindProgress.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 		me.pointers.rebindProgress.text.style.fontSize = '12px';
 
-		console.log('nCrawler js inited');
+		// jQuery('#username').editable({
+		// 	mode: 'inline',
+		// 	showbuttons : false,
+		// 	type: 'text',
+		// 	title: 'Новое значение'
+		// });
+
+		console.log('nCrawler inited successfully');
 		me.IsInit = true;
 	},
 
@@ -123,7 +130,7 @@ nCrawler = {
 		});
 	},
 
-	getProductQuantity : function () {
+	getProductQuantity : function (callback) {
 		var me = this;
 		me.products_total = 0;
 		me.data.action = 'GetProductsQuantity';
@@ -134,6 +141,7 @@ nCrawler = {
 				return;
 			}
 			me.products_total = parseInt(response['prod_quant']);
+			if(typeof callback == 'function') callback(response);
 		});
 	},
 
@@ -168,17 +176,36 @@ nCrawler = {
 				{data : 'name'},
 				{data : 'current_price'},
 				{data : 'suggest_price'},
-				{data : 'watcher_name'},
+				{data : 'end_price'},
+				{data : 'status'},
 				{data : 'actions'}
 			],
 			pageLength : 25,
 			lengthMenu : [25, 50, 100],
 			data : data,
-			dom: '<"top"<"col-lg-5 sub-table-filter"f><"col-lg-6"<"pull-right"p><"pull-right margin-right-10"i>><"col-lg-1"l><"clear">>rt<"top"<"col-lg-5 sub-table-filter"f><"col-lg-6"<"pull-right"p><"pull-right margin-right-10"i>><"col-lg-1"l><"clear">>',
+			dom: '<"main-list-top"<f><p><l>>rt',
 			fnCreatedRow : function(nRow, aData, iDataIndex) {
-				// jQuery(nRow).attr('data-key', aData['Data_Key']).attr('data-type', aData['Data_Type'])
+				jQuery(nRow).attr('data-product-id', aData['RowID']);
 			},
 			fnDrawCallback: function(settings) {
+
+				jQuery('#mainProductList').find('.editable').editable({
+					mode: 'inline',
+					type: 'text',
+					showbuttons : false,
+					title: 'Новое значение'
+					// url: '/matcher-price/ajax/set-price'
+					// params: function(params) {
+					// 	params.matcher_id = nCrawler.Matcher.data.matcher_id;
+					// 	return params;
+					// },
+					// success: function(response, new_value) {
+					// 	jQuery(this).parents('td').find('i.fa').removeClass('fa-unlock').addClass('fa-lock');
+					// 	console.log('response', response);
+					// 	console.log('new_al', new_value);
+					// }
+				});
+
 				// console.log('render from init');
 				// var middle_price = {name : 'Средняя цена',type : 'spline',data : []};
 				// var price_range = {name : 'Цена от - до',type : 'columnrange',data : []};

@@ -11,3 +11,15 @@
 	height: 75px;
 	position: relative;
 }
+
+div#content {
+	background-color: #f8f8f8;
+}
+
+.editable-input, .editable-input input {
+	width: 75px;
+}
+
+.main-list-top div {
+	float: left!important;
+}
