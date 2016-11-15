@@ -6,6 +6,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 	private $nc_access_login 	= '';
 	private $nc_access_token 	= '';
 	private $nc_access_url 		= '';
+	private $nc_source_sld		= '';
 
 	public function __construct()
 	{
@@ -19,10 +20,11 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		parent::__construct();
 
-		$config = Configuration::getMultiple([nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL]);
+		$config = Configuration::getMultiple([nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL, nCrawler::NC_SOURCE_SLD]);
 		$this->nc_access_login 	= $config[nCrawler::NC_ACCESS_LOGIN];
 		$this->nc_access_token 	= $config[nCrawler::NC_ACCESS_TOKEN];
 		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
+		$this->nc_source_sld	= $config[nCrawler::NC_SOURCE_SLD];
 	}
 
 	/**
@@ -31,7 +33,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessResendProductsData() {
 		$url = $this->generateNetCrawlerAccessUrl('matchers', 'rebind-products');
 
-		$page_size = 10;
+		$page_size = 100;
 
 		$page = intval(Tools::getValue('page'));
 		if(empty($page)) {
@@ -46,16 +48,27 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$bind_data = [];
 		$productObj = new Product();
 		$products = $productObj->getProducts($this->context->language->id, $page_size * ($page - 1), $page_size, 'id_product', 'DESC', false, false);
+
 		foreach($products as $product) {
 			$link = new Link();
-			$bind_data[$product['id_product']] = $link->getProductLink($product['id_product']);
+			$p_url = $link->getProductLink($product['id_product']);
+
+			// Rewrite host if needed
+			if(!empty($this->nc_source_sld)) {
+				$parts 			= parse_url($p_url);
+				$parts['host'] 	= $this->nc_source_sld;
+				$p_url 			= self::build_url($parts);
+			}
+
+			$bind_data[$product['id_product']] = $p_url;
 		}
 
+		// Bind request
 		$nc_response = self::curlRequest($url, $bind_data);
 
 		echo Tools::jsonEncode([
 			'action' 		=> 'ResendProductsData',
-			'type'			=> 'success',
+			'type'			=> (!empty($nc_response['type']) ? $nc_response['type'] : 'error'),
 			'url'			=> $url,
 			'nc_response' 	=> $nc_response,
 			'page'	 		=> $page,
@@ -195,7 +208,23 @@ class AdminNetCrawlerController extends ModuleAdminController
 		];
 
 		$url = join('/', $parts);
+
 		return $url;
+	}
+
+	static private function build_url(array $elements) {
+		$e = $elements;
+		return
+			(isset($e['host']) ? (
+				(isset($e['scheme']) ? "$e[scheme]://" : '//') .
+				(isset($e['user']) ? $e['user'] . (isset($e['pass']) ? ":$e[pass]" : '') . '@' : '') .
+				$e['host'] .
+				(isset($e['port']) ? ":$e[port]" : '')
+			) : '') .
+			(isset($e['path']) ? $e['path'] : '/') .
+			(isset($e['query']) ? '?' . (is_array($e['query']) ? http_build_query($e['query'], '', '&') : $e['query']) : '') .
+			(isset($e['fragment']) ? "#$e[fragment]" : '')
+			;
 	}
 
 }

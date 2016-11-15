@@ -1,7 +1,6 @@
 <?php
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) exit;
 
 class nCrawler extends Module
 {
@@ -10,12 +9,14 @@ class nCrawler extends Module
 	const NC_ACCESS_LOGIN	= 'NC_ACCESS_LOGIN';
 	const NC_ACCESS_TOKEN	= 'NC_ACCESS_TOKEN';
 	const NC_ACCESS_URL		= 'NC_ACCESS_URL';
+	const NC_SOURCE_SLD		= 'NC_SOURCE_SLD';
 
 	private $_html 	= '';
 
 	private $nc_access_login 	= '';
 	private $nc_access_token 	= '';
 	private $nc_access_url 		= '';
+	private $nc_source_sld		= '';
 
 	private $_postErrors 		= [];
 
@@ -35,10 +36,11 @@ class nCrawler extends Module
 		//$this->author_uri = 'http://addons.prestashop.com/ru/payments-gateways/5507-universal-payment-module.html';
 		$this->bootstrap = true; // use bootstrap for creation module struct
 
-		$config = Configuration::getMultiple([self::NC_ACCESS_LOGIN,self::NC_ACCESS_TOKEN,self::NC_ACCESS_URL,]);
+		$config = Configuration::getMultiple([self::NC_ACCESS_LOGIN, self::NC_ACCESS_TOKEN, self::NC_ACCESS_URL, self::NC_SOURCE_SLD]);
 		if (isset($config[self::NC_ACCESS_LOGIN])) $this->nc_access_login = $config[self::NC_ACCESS_LOGIN];
 		if (isset($config[self::NC_ACCESS_TOKEN])) $this->nc_access_token = $config[self::NC_ACCESS_TOKEN];
 		if (isset($config[self::NC_ACCESS_URL])) $this->nc_access_url = $config[self::NC_ACCESS_URL];
+		if (isset($config[self::NC_SOURCE_SLD])) $this->nc_source_sld = $config[self::NC_SOURCE_SLD];
 
 		parent::__construct();
 
@@ -83,6 +85,7 @@ class nCrawler extends Module
 
 		$this->context->controller->addJS($this->_path . 'views/js/sweetalert2.min.js');
 		$this->context->controller->addJS($this->_path . 'views/js/datatables.min.js');
+		$this->context->controller->addJS($this->_path . 'views/js/progressbar.min.js');
 		$this->context->controller->addJS($this->_path . 'views/js/ncrawler.js');
 	}
 
@@ -99,7 +102,8 @@ class nCrawler extends Module
 			Configuration::deleteByName('NCRAWLER') &&
 			Configuration::deleteByName(self::NC_ACCESS_LOGIN) &&
 			Configuration::deleteByName(self::NC_ACCESS_TOKEN) &&
-			Configuration::deleteByName(self::NC_ACCESS_URL)
+			Configuration::deleteByName(self::NC_ACCESS_URL) &&
+			Configuration::deleteByName(self::NC_SOURCE_SLD)
 			;
 
 //			self::rrmdir(_PS_IMG_DIR_ . 'pay') &&
@@ -137,6 +141,7 @@ class nCrawler extends Module
                     <tr><td width="140" style="height: 35px;">'.$this->l('Your nCrawler login').'</td><td><input type="text" name="nc_access_login" value="'.htmlentities(Tools::getValue('nc_access_login', $this->nc_access_login), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
                     <tr><td width="140" style="height: 35px;">'.$this->l('Your nCrawler token').'</td><td><input type="text" name="nc_access_token" value="'.htmlentities(Tools::getValue('nc_access_token', $this->nc_access_token), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
                     <tr><td width="140" style="height: 35px;">'.$this->l('nCrawler access url').'</td><td><input type="text" name="nc_access_url" value="'.htmlentities(Tools::getValue('nc_access_url', $this->nc_access_url), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
+                    <tr><td width="140" style="height: 35px;">'.$this->l('Your SLD (domain.com) with out www').'</td><td><input type="text" name="nc_source_sld" value="'.htmlentities(Tools::getValue('nc_source_sld', $this->nc_source_sld), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
                     <tr><td colspan="2" align="center"><br /><input class="button" name="btnSubmit" value="'.$this->l('Save settings').'" type="submit" /></td></tr>
                 </table>
             </fieldset>
@@ -163,6 +168,7 @@ class nCrawler extends Module
 			Configuration::updateValue(self::NC_ACCESS_LOGIN, $_POST['nc_access_login']);
 			Configuration::updateValue(self::NC_ACCESS_TOKEN, $_POST['nc_access_token']);
 			Configuration::updateValue(self::NC_ACCESS_URL, $_POST['nc_access_url']);
+			Configuration::updateValue(self::NC_SOURCE_SLD, $_POST['nc_source_sld']);
 
 			$this->_html .= '
 			<div class="conf confirm">

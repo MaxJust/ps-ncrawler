@@ -2,10 +2,12 @@ nCrawler = {
 	IsInit : false,
 	selectors : {
 		mainTable 		: null,
-		reSendProducts 	: null
+		reSendProducts 	: null,
+		rebindProgress	: null
 	},
 	pointers : {
-		mainTable : null
+		mainTable 		: null,
+		rebindProgress	: null
 	},
 	controller 		: null,
 	products_total 	: 0,
@@ -39,14 +41,46 @@ nCrawler = {
 				confirmButtonText	: 'Да, обновить!'
 			}).then(function () {
 				me.data.page = 0;
+				me.selectors.rebindProgress.fadeIn();
+				me.selectors.reSendProducts.hide();
 				me.rebindProductsData();
 			}, function (dismiss) {
 				if (dismiss === 'cancel') {console.log('canceledd');}	// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
 			});
 		});
 
+		me.pointers.rebindProgress = new ProgressBar.Circle(rebindProgress, {
+			color: '#aaa',
+			// This has to be the same size as the maximum width to
+			// prevent clipping
+			strokeWidth: 4,
+			trailWidth: 1,
+			easing: 'easeInOut',
+			duration: 1400,
+			text: {
+				autoStyleContainer: false
+			},
+			from: { color: '#aaa', width: 3 },
+			to: { color: '#333', width: 7 },
+			// Set default step function for all animate calls
+			step: function(state, circle) {
+				circle.path.setAttribute('stroke', state.color);
+				circle.path.setAttribute('stroke-width', state.width);
+
+				var value = Math.round(circle.value() * 100);
+				if (value === 0) {
+					circle.setText('');
+				} else {
+					circle.setText(value);
+				}
+			}
+		});
+
 		me.getMatchersList();
 		me.getProductQuantity();
+
+		me.pointers.rebindProgress.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+		me.pointers.rebindProgress.text.style.fontSize = '12px';
 
 		console.log('nCrawler js inited');
 		me.IsInit = true;
@@ -59,11 +93,32 @@ nCrawler = {
 
 		me.data.page++;
 		me.requestData(function (response) {
-			if(response.type != 'success') {alert('ERROR');return;}
 
-			if(me.data.page <= me.products_total / 1000) {
-				me.rebindProductsData();
+			// Error happen
+			if(response.type != 'success') {
+				me.rebindComplete();
+				alert('ERROR');
+				return;
 			}
+
+			if(me.data.page <= me.products_total / 100) {
+				var t_p = me.products_total / 100;
+				var prg = parseFloat(me.data.page / t_p).toFixed(2);
+				console.log(prg);
+				me.pointers.rebindProgress.animate(prg);
+				me.rebindProductsData();
+			} else {
+				me.rebindComplete();
+			}
+		});
+	},
+
+	rebindComplete : function() {
+		var me = this;
+		me.pointers.rebindProgress.animate(1.0);
+		me.selectors.reSendProducts.fadeIn();
+		me.selectors.rebindProgress.fadeOut(500, function() {
+			me.pointers.rebindProgress.animate(0.0);
 		});
 	},
 
@@ -165,8 +220,9 @@ nCrawler = {
 	initPointers : function() {
 		var me = this;
 
-		me.selectors.mainTable = jQuery('#mainProductList');
-		me.selectors.reSendProducts = jQuery('#reSendProducts');
+		me.selectors.mainTable 		= jQuery('#mainProductList');
+		me.selectors.reSendProducts	= jQuery('#reSendProducts');
+		me.selectors.rebindProgress	= jQuery('#rebindProgress');
 	}
 
 };

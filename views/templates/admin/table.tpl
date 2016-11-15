@@ -9,10 +9,10 @@
 	<div>Url: {$url}</div>
 </div>
 
-<div style="width: 300px;overflow: hidden;float: left;">
+<div style="height: 150px;width: 300px;overflow: hidden;float: left;">
 	<h3>Products Synchronization:</h3>
-	<div>ReSet my matirsx</div>
-	<a id="reSendProducts" href="#">resend</a>
+	<div id="rebindProgress" class="progress-container" style="float: left;"></div>
+	<a id="reSendProducts" class="resend-products-button" href="#" style="float: left">ReSync</a>
 </div>
 
 <div style="width: 300px;overflow: hidden;float: left;">
