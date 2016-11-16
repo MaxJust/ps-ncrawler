@@ -13,10 +13,11 @@ nCrawler = {
 	controller 		: null,
 	products_total 	: 0,
 	data : {
-		ajax 	: true,
-		action 	: null,
-		token 	: null,
-		page	: 0
+		ajax 		: true,
+		action 		: null,
+		token 		: null,
+		page		: 0,
+		saveData 	: {}
 	},
 
 	Init : function() {
@@ -109,7 +110,72 @@ nCrawler = {
 	},
 
 	saveProducts : function() {
-		console.log('save process');
+		var me = this;
+
+		var error_flag = false;
+
+		var selector;
+		switch(jQuery('#setPricesType').val()) {
+			case 'lowprofit':
+				selector = '.lowprofit';
+				break;
+			case 'bad':
+				selector = '.bad';
+				break;
+			case 'all':
+				selector = false;
+				break;
+			default:
+				error_flag = true;
+				alert('Error happen');
+				return;
+		}
+
+		me.data.saveData 	= {};
+
+		nCrawler.pointers.mainTable.rows(selector).eq(0).each(function (index) {
+			var jRow = nCrawler.pointers.mainTable.row(index).nodes().to$();
+
+			var product_id 			= jRow.attr('data-product-id');
+			var product_endprice 	= parseInt(jRow.find('.endPrice').html());
+
+			// Check if price exist
+			if(!product_endprice) {error_flag = true;return true;}
+
+			me.data.saveData[product_id] = product_endprice;
+
+		});
+
+		if(error_flag) {
+			swal(
+				'Fatal Error',
+				'Во время формирования списка произошла ошибка,<br> ' +
+				'пожалуйста свяжитесь с nCrawler.com<br>' +
+				'(+7[495]419-00-13)',
+				'error'
+			);
+			return;
+		}
+
+		me.data.action = 'SetPrices';
+		me.requestData(function(response) {
+
+			if(response.type != 'success') {
+				swal('Ошибка', 'Во время сохранения произошла ошибка: <br>' + response.message || "неизвестная ошибка", 'error');
+				return;
+			}
+
+			swal('Все сделано!', 'Данные сохранены: <br>' + response.message, 'success');
+
+			// Reget table
+			me.data.action = 'GetAllProducts';
+			me.requestData(function (response) {
+				if(response.type != 'success') {swal('Ошибка', 'Ошибка рендера таблицы', 'error');return;}
+				me.renderMainTable(response['DT']);
+			});
+		});
+
+		// console.log(me.data.saveData);
 	},
 
 	rebindProductsData : function () {
@@ -174,8 +240,6 @@ nCrawler = {
 
 	renderMainTable : function(data) {
 		var me = this;
-
-		console.log('render table', data);
 
 		me.pointers.mainTable = me.selectors.mainTable.DataTable({
 			destroy : true,
@@ -296,3 +360,24 @@ nCrawler = {
 
 jQuery(document).ready(function () {nCrawler.Init();});
 
+
+
+// me.pointers.mainTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+// 	var row = me.pointers.mainTable.row(rowIdx);
+//
+// 	console.log('row', row.nod);
+//
+// 	var api = this.api();
+// 	var rows = api.rows({page:'current'}).nodes();
+// 	var last = null;
+// 	api.column(4, {page:'current'}).data().each(function(group, i) {
+// 		if(last !== group) {
+// 			jQuery(rows).eq(i).before(
+// 				'<tr class="group ' + ( i % 2 ? ' even' : ' odd') + '" role="row" data-key="' + jQuery(rows).eq(i).data('key') + '">' +
+// 				'<td colspan="5">' + group + '</td>' +
+// 				'</tr>');
+// 			last = group;
+// 		}
+// 	});
+//
+// });

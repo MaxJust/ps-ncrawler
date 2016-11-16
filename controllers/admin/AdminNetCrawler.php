@@ -34,6 +34,27 @@ class AdminNetCrawlerController extends ModuleAdminController
 //		$this->context->controller->addCss($this->path . '/views/css/bootstrap.min.css');
 //	}
 
+	public function ajaxProcessSetPrices() {
+
+		$saveData = Tools::getValue('saveData');
+		if(empty($saveData)) {
+			echo Tools::jsonEncode([
+				'action' 	=> 'SetPrices',
+				'type'		=> 'error',
+				'message'	=> 'empty data',
+			]);
+			exit;
+		}
+
+		echo Tools::jsonEncode([
+			'action' 		=> 'SetPrices',
+			'type'			=> 'success',
+			'$saveData'		=> $saveData,
+			'message'		=> 'test message',
+		]);
+		exit;
+	}
+
 	/**
 	 * Rebind products on nCrawler.com server
 	 */
@@ -193,6 +214,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		}
 
 		echo Tools::jsonEncode([
+			'type'		=> 'success',
 			'pids'		=> $response['pids'],
 			'DT'		=> $prod_json,
 			'products' 	=> $response['products'],
