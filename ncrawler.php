@@ -18,7 +18,7 @@ class nCrawler extends Module
 	private $nc_access_url 		= '';
 	private $nc_source_sld		= '';
 
-	private $_postErrors 		= [];
+	private $_postErrors 		= array();
 
 	public function __construct()
 	{
