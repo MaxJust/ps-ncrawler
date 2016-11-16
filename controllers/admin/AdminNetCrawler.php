@@ -12,7 +12,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 	{
 		$this->module		= 'ncrawler';
 		$this->bootstrap	= true;
-		$this->table 		= 'ncrawler';
+//		$this->table 		= 'ncrawler';
 //		$this->className 	= 'NetCrawler';
 		$this->lang 		= false;
 
