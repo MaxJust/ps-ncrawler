@@ -33,18 +33,32 @@ class AdminNetCrawlerController extends ModuleAdminController
 //		$this->context->controller->addCss($this->path . '/views/css/bootstrap.min.css');
 //	}
 
+	/**
+	 * Update remote data
+	 */
+	public function ajaxProcessUpdateRemote() {
+		$full_url = self::generateNetCrawlerAccessUrl('matchers', 'recalculate-all-matchers');
+		$response = self::curlRequest($full_url);
+		echo Tools::jsonEncode([
+			'action' 	=> 'UpdateRemote',
+			'type'		=> !empty($response['type']) ? $response['type'] : 'error',
+			'message'	=> !empty($response['message']) ? $response['message'] : 'Неизвестное сообщение :(',
+		]);
+		exit;
+	}
+
 	public function ajaxProcessSetPrices() {
 
 		$saveData = Tools::getValue('saveData');
+
 		if(empty($saveData)) {
 			echo Tools::jsonEncode([
 				'action' 	=> 'SetPrices',
 				'type'		=> 'error',
-				'message'	=> 'empty data',
+				'message'	=> 'Нет данных для сохранения',
 			]);
 			exit;
 		}
-
 
 		$values 	= [];
 		$columns 	= ['id_product', 'price'];
@@ -170,32 +184,10 @@ class AdminNetCrawlerController extends ModuleAdminController
 	}
 
 	/**
-	 * TEST CALLBACK
+	 * Get All Products CallBack
 	 */
 	public function ajaxProcessGetAllProducts() {
 
-//		$productObj = new Product();
-//		$products = $productObj->getProducts($this->context->language->id, 0, 100, 'id_product', 'DESC', false, false);
-//
-//		$prod_json = [];
-//		foreach($products as $product) {
-////			$link = new Link();
-////			$url = $link->getProductLink($product['id_product']);
-//
-//			$status = 'Неизвестно';
-//
-////			if()
-//
-//			$prod_json[] = [
-//				'RowID'		 	=> $product['id_product'],
-//				'name' 			=> $product['name'],
-//				'current_price'	=> number_format($product['price'], 2, '.', ' '),
-//				'suggest_price'	=> 0,
-//				'end_price'		=> '',
-//				'status'		=> $status,
-//				'actions'		=> '',
-//			];
-//		}
 		$full_url = self::generateNetCrawlerAccessUrl('matchers', 'get-all-products');
 		$response = self::curlRequest($full_url, ['site' => $this->nc_source_sld]);
 
@@ -343,7 +335,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 }
 
 
-
 //	public function init() {
 //		ppp('DIE INIT');
 //	}
@@ -391,3 +382,26 @@ class AdminNetCrawlerController extends ModuleAdminController
 //				'type' => 'bool',
 //				'orderby' => false)
 //		);
+
+//		$productObj = new Product();
+//		$products = $productObj->getProducts($this->context->language->id, 0, 100, 'id_product', 'DESC', false, false);
+//
+//		$prod_json = [];
+//		foreach($products as $product) {
+////			$link = new Link();
+////			$url = $link->getProductLink($product['id_product']);
+//
+//			$status = 'Неизвестно';
+//
+////			if()
+//
+//			$prod_json[] = [
+//				'RowID'		 	=> $product['id_product'],
+//				'name' 			=> $product['name'],
+//				'current_price'	=> number_format($product['price'], 2, '.', ' '),
+//				'suggest_price'	=> 0,
+//				'end_price'		=> '',
+//				'status'		=> $status,
+//				'actions'		=> '',
+//			];
+//		}

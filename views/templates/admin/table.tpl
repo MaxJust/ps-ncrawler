@@ -26,6 +26,11 @@
 		<button id="setPrice" style="margin: 10px;">Установить</button>
 	</div>
 
+	<div style="width: 150px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">
+		<h3>Сервер nCrawler:</h3>
+		<button id="updateRemote">Обновить сравнения</button>
+	</div>
+
 	{*<div style="width: 150px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">*}
 		{*<h3>Фильтры:</h3>*}
 		{*<div class="filterWrap"></div>*}

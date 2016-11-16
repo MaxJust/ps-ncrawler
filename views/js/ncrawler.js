@@ -4,7 +4,8 @@ nCrawler = {
 		mainTable 		: null,
 		reSendProducts 	: null,
 		rebindProgress	: null,
-		setPrices		: null
+		setPrices		: null,
+		updateRemote	: null
 	},
 	pointers : {
 		mainTable 		: null,
@@ -102,6 +103,23 @@ nCrawler = {
 			}, function (dismiss) {
 				// dismiss can be 'cancel', 'overlay', 'close', and 'timer'
 				if (dismiss === 'cancel') {console.log('save canceled');}
+			});
+		});
+
+		// Update Remote matchers
+		me.selectors.updateRemote.on('click', function(e) {
+			e.preventDefault();
+			me.data.action = 'UpdateRemote';
+			me.requestData(function(response) {
+				swal('Ответ сервера', response['message'], response['type']);
+				if(response.type == 'success') {
+					// Reget table
+					me.data.action = 'GetAllProducts';
+					me.requestData(function (response) {
+						if(response.type != 'success') {swal('Ошибка', 'Ошибка рендера таблицы', 'error');return;}
+						me.renderMainTable(response['DT']);
+					});
+				}
 			});
 		});
 
@@ -357,6 +375,7 @@ nCrawler = {
 		me.selectors.reSendProducts	= jQuery('#reSendProducts');
 		me.selectors.rebindProgress	= jQuery('#rebindProgress');
 		me.selectors.setPrices		= jQuery('#setPrice');
+		me.selectors.updateRemote	= jQuery('#updateRemote');
 	}
 
 };
