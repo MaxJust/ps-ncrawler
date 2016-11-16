@@ -47,6 +47,9 @@ class AdminNetCrawlerController extends ModuleAdminController
 		exit;
 	}
 
+	/**
+	 * Set All Prices Callback
+	 */
 	public function ajaxProcessSetPrices() {
 
 		$saveData = Tools::getValue('saveData');
@@ -60,13 +63,12 @@ class AdminNetCrawlerController extends ModuleAdminController
 			exit;
 		}
 
+		$ids 		= [];
 		$values 	= [];
-		$columns 	= ['id_product', 'price'];
+		$columns 	= ['id_product', 'price', 'pc_price'];
 		foreach($saveData as $pid => $price) {
-			$value = [
-				(int) $pid,
-				(int) $price
-			];
+			$ids[] = (int) $pid;
+			$value = [(int) $pid, (int) $price, (int) $price,];
 			$values[] = '(' . implode(',', $value) . ')';
 		}
 
@@ -81,13 +83,27 @@ class AdminNetCrawlerController extends ModuleAdminController
 		//INSERT INTO table (id,Col1,Col2) VALUES (1,1,1),(2,2,3),(3,9,3),(4,10,12) ON DUPLICATE KEY UPDATE Col1=VALUES(Col1),Col2=VALUES(Col2);
 		$query = 'INSERT INTO  ' . _DB_PREFIX_ . 'product (' . implode(',', $columns) . ') 
 					VALUES ' . implode(',', $values) . ' 
-		 			ON DUPLICATE KEY UPDATE price = VALUES(price);';
+		 			ON DUPLICATE KEY UPDATE price = VALUES(price), pc_price = VALUES(pc_price);';
 
 		$results = Db::getInstance()->execute($query);
 		if(!$results) {
 			echo Tools::jsonEncode([
 				'type'		=> 'error',
-				'message' 	=> 'DB update ERROR!',
+				'message' 	=> 'DB PRODUCT ERROR!',
+			]);
+			exit;
+		}
+
+		$query = 'UPDATE ' . _DB_PREFIX_ . 'product_shop as ps 
+			LEFT JOIN ' . _DB_PREFIX_ . 'product as p ON ps.id_product = p.id_product 
+			SET ps.price = p.price 
+			WHERE ps.id_shop = 1 AND ps.id_product IN (' . implode(',', $ids) . ');';
+
+		$results = Db::getInstance()->execute($query);
+		if(!$results) {
+			echo Tools::jsonEncode([
+				'type'		=> 'error',
+				'message' 	=> 'DB SHOP ERROR!',
 			]);
 			exit;
 		}
@@ -98,6 +114,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 			'$saveData'		=> $saveData,
 			'message'		=> 'test message',
 		]);
+
 		exit;
 	}
 
