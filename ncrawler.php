@@ -36,7 +36,7 @@ class nCrawler extends Module
 		//$this->author_uri = 'http://addons.prestashop.com/ru/payments-gateways/5507-universal-payment-module.html';
 		$this->bootstrap = true; // use bootstrap for creation module struct
 
-		$config = Configuration::getMultiple([self::NC_ACCESS_LOGIN, self::NC_ACCESS_TOKEN, self::NC_ACCESS_URL, self::NC_SOURCE_SLD]);
+		$config = Configuration::getMultiple(array(self::NC_ACCESS_LOGIN, self::NC_ACCESS_TOKEN, self::NC_ACCESS_URL, self::NC_SOURCE_SLD));
 		if (isset($config[self::NC_ACCESS_LOGIN])) $this->nc_access_login = $config[self::NC_ACCESS_LOGIN];
 		if (isset($config[self::NC_ACCESS_TOKEN])) $this->nc_access_token = $config[self::NC_ACCESS_TOKEN];
 		if (isset($config[self::NC_ACCESS_URL])) $this->nc_access_url = $config[self::NC_ACCESS_URL];
@@ -72,10 +72,10 @@ class nCrawler extends Module
 			$this->registerHook('actionAdminControllerSetMedia') &&
 			Configuration::updateValue('NCRAWLER', 'my value') &&
 			self::installModuleTab(self::ADMIN_TAB_NAME,
-				[
+				array(
 					'ru' 		=> 'nCrawler.com',
 					'default' 	=> 'nCrawler.com',
-				],'AdminParentModules');
+				),'AdminParentModules');
 	}
 
 	public function hookActionAdminControllerSetMedia($params) {

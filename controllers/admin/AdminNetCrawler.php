@@ -21,7 +21,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		parent::__construct();
 //		$this->context->controller->addCSS(_PS_MODULE_DIR_ . '/views/css/bootstrap.min.css');
 
-		$config = Configuration::getMultiple([nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL, nCrawler::NC_SOURCE_SLD]);
+		$config = Configuration::getMultiple(array(nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL, nCrawler::NC_SOURCE_SLD));
 		$this->nc_access_login 	= $config[nCrawler::NC_ACCESS_LOGIN];
 		$this->nc_access_token 	= $config[nCrawler::NC_ACCESS_TOKEN];
 		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
@@ -39,11 +39,11 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessUpdateRemote() {
 		$full_url = self::generateNetCrawlerAccessUrl('matchers', 'recalculate-all-matchers');
 		$response = self::curlRequest($full_url);
-		echo Tools::jsonEncode([
+		echo Tools::jsonEncode(array(
 			'action' 	=> 'UpdateRemote',
 			'type'		=> !empty($response['type']) ? $response['type'] : 'error',
 			'message'	=> !empty($response['message']) ? $response['message'] : 'Неизвестное сообщение :(',
-		]);
+		));
 		exit;
 	}
 
@@ -55,28 +55,28 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$saveData = Tools::getValue('saveData');
 
 		if(empty($saveData)) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'action' 	=> 'SetPrices',
 				'type'		=> 'error',
 				'message'	=> 'Нет данных для сохранения',
-			]);
+			));
 			exit;
 		}
 
-		$ids 		= [];
-		$values 	= [];
-		$columns 	= ['id_product', 'price', 'pc_price'];
+		$ids 		= array();
+		$values 	= array();
+		$columns 	= array('id_product', 'price', 'pc_price');
 		foreach($saveData as $pid => $price) {
 			$ids[] = (int) $pid;
-			$value = [(int) $pid, (int) $price, (int) $price,];
+			$value = array((int) $pid, (int) $price, (int) $price,);
 			$values[] = '(' . implode(',', $value) . ')';
 		}
 
 		if(empty($values)) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'type'		=> 'error',
 				'message' 	=> 'Нечего сохранять',
-			]);
+			));
 			exit;
 		}
 
@@ -87,10 +87,10 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		$results = Db::getInstance()->execute($query);
 		if(!$results) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'type'		=> 'error',
 				'message' 	=> 'DB PRODUCT ERROR!',
-			]);
+			));
 			exit;
 		}
 
@@ -101,19 +101,19 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		$results = Db::getInstance()->execute($query);
 		if(!$results) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'type'		=> 'error',
 				'message' 	=> 'DB SHOP ERROR!',
-			]);
+			));
 			exit;
 		}
 
-		echo Tools::jsonEncode([
+		echo Tools::jsonEncode(array(
 			'action' 		=> 'SetPrices',
 			'type'			=> 'success',
 			'$saveData'		=> $saveData,
 			'message'		=> 'test message',
-		]);
+		));
 
 		exit;
 	}
@@ -128,15 +128,15 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		$page = intval(Tools::getValue('page'));
 		if(empty($page)) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'action' 	=> 'ResendProductsData',
 				'type'		=> 'error',
 				'message'	=> 'wrong page number',
-			]);
+			));
 			exit;
 		}
 
-		$bind_data = [];
+		$bind_data = array();
 		$productObj = new Product();
 		$products = $productObj->getProducts($this->context->language->id, $page_size * ($page - 1), $page_size, 'id_product', 'DESC', false, false);
 
@@ -157,13 +157,13 @@ class AdminNetCrawlerController extends ModuleAdminController
 		// Bind request
 		$nc_response = self::curlRequest($url, $bind_data);
 
-		echo Tools::jsonEncode([
+		echo Tools::jsonEncode(array(
 			'action' 		=> 'ResendProductsData',
 			'type'			=> (!empty($nc_response['type']) ? $nc_response['type'] : 'error'),
 			'url'			=> $url,
 			'nc_response' 	=> $nc_response,
 			'page'	 		=> $page,
-		]);
+		));
 		exit;
 	}
 
@@ -174,10 +174,10 @@ class AdminNetCrawlerController extends ModuleAdminController
 //		$url = 'https://ncrawler.com:555/api/matchers/d41d8cd98f00b204e9800998ecf8427e/6393905@gmail.com/get-list';
 		$url	= self::generateNetCrawlerAccessUrl('matchers', 'get-list');
 		$data 	= self::curlRequest($url);
-		echo Tools::jsonEncode([
+		echo Tools::jsonEncode(array(
 			'action' 	=> 'get-matchers',
 			'data'	 	=> $data,
-		]);
+		));
 		exit;
 	}
 
@@ -187,15 +187,15 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessGetProductsQuantity() {
 		$sql = 'SELECT count(*) as prod_quant FROM ' . _DB_PREFIX_ . 'product WHERE active = 1';
 		if ($results = Db::getInstance()->ExecuteS($sql)) {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'type'			=> 'success',
 				'prod_quant' 	=> $results[0]['prod_quant'],
-			]);
+			));
 		} else {
-			echo Tools::jsonEncode([
+			echo Tools::jsonEncode(array(
 				'type'			=> 'error',
 				'prod_quant' 	=> 0,
-			]);
+			));
 		}
 		exit;
 	}
@@ -206,7 +206,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 	public function ajaxProcessGetAllProducts() {
 
 		$full_url = self::generateNetCrawlerAccessUrl('matchers', 'get-all-products');
-		$response = self::curlRequest($full_url, ['site' => $this->nc_source_sld]);
+		$response = self::curlRequest($full_url, array('site' => $this->nc_source_sld));
 
 		if($response['type'] != 'success' || empty($response['pids']) || empty($response['products'])) {
 			echo Tools::jsonEncode($response);
@@ -220,12 +220,12 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$sql = 'SELECT id_product, price FROM ' . _DB_PREFIX_ . 'product WHERE id_product IN ('.implode(',', $pids).') ';
 		$db_results = Db::getInstance()->ExecuteS($sql);
 		if(empty($db_results)) {
-			echo Tools::jsonEncode(['type' => 'empty', 'total' => 0,]);
+			echo Tools::jsonEncode(array('type' => 'empty', 'total' => 0,));
 			exit;
 		}
 
 		// Generate products table
-		$prod_json = [];
+		$prod_json = array();
 		foreach($db_results as $product) {
 
 			$current_price = $product['price'];
@@ -241,7 +241,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 				$status = 'optimal';
 			}
 
-			$prod_json[] = [
+			$prod_json[] = array(
 				'RowID'		 	=> $product['id_product'],
 				'RowStatus'		=> $status,
 				'name' 			=> $products[$product['id_product']]['title'],
@@ -251,16 +251,16 @@ class AdminNetCrawlerController extends ModuleAdminController
 				'end_price'		=> '<span class="endPrice editable">' . $suggest_price . '</span>',
 				'status'		=> $status,
 				'actions'		=> '',
-			];
+			);
 		}
 
-		echo Tools::jsonEncode([
+		echo Tools::jsonEncode(array(
 			'type'		=> 'success',
 			'pids'		=> $response['pids'],
 			'DT'		=> $prod_json,
 			'products' 	=> $response['products'],
 			'total' 	=> count($response['products']),
-		]);
+		));
 
 		exit;
 	}
@@ -321,13 +321,13 @@ class AdminNetCrawlerController extends ModuleAdminController
 	 */
 	private function generateNetCrawlerAccessUrl($section, $sub_action) {
 
-		$parts = [
+		$parts = array(
 			trim($this->nc_access_url, '/'),
 			trim($section, '/'),
 			trim($this->nc_access_token, '/'),
 			trim($this->nc_access_login, '/'),
 			trim($sub_action, '/'),
-		];
+		);
 
 		$url = join('/', $parts);
 
