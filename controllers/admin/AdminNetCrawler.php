@@ -28,7 +28,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->nc_source_sld	= $config[nCrawler::NC_SOURCE_SLD];
 	}
 
-
 //	public function setMedia() {
 //		parent::setMedia();
 //		$this->context->controller->addCss($this->path . '/views/css/bootstrap.min.css');
@@ -42,6 +41,39 @@ class AdminNetCrawlerController extends ModuleAdminController
 				'action' 	=> 'SetPrices',
 				'type'		=> 'error',
 				'message'	=> 'empty data',
+			]);
+			exit;
+		}
+
+
+		$values 	= [];
+		$columns 	= ['id_product', 'price'];
+		foreach($saveData as $pid => $price) {
+			$value = [
+				(int) $pid,
+				(int) $price
+			];
+			$values[] = '(' . implode(',', $value) . ')';
+		}
+
+		if(empty($values)) {
+			echo Tools::jsonEncode([
+				'type'		=> 'error',
+				'message' 	=> 'Нечего сохранять',
+			]);
+			exit;
+		}
+
+		//INSERT INTO table (id,Col1,Col2) VALUES (1,1,1),(2,2,3),(3,9,3),(4,10,12) ON DUPLICATE KEY UPDATE Col1=VALUES(Col1),Col2=VALUES(Col2);
+		$query = 'INSERT INTO  ' . _DB_PREFIX_ . 'product (' . implode(',', $columns) . ') 
+					VALUES ' . implode(',', $values) . ' 
+		 			ON DUPLICATE KEY UPDATE price = VALUES(price);';
+
+		$results = Db::getInstance()->execute($query);
+		if(!$results) {
+			echo Tools::jsonEncode([
+				'type'		=> 'error',
+				'message' 	=> 'DB update ERROR!',
 			]);
 			exit;
 		}

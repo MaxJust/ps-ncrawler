@@ -122,6 +122,9 @@ nCrawler = {
 			case 'bad':
 				selector = '.bad';
 				break;
+			case 'optimal':
+				selector = '.optimal';
+				break;
 			case 'all':
 				selector = false;
 				break;

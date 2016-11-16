@@ -21,6 +21,7 @@
 			<option value="all">Все</option>
 			<option value="bad">Только дорогие</option>
 			<option value="lowprofit">С низкой маржой</option>
+			<option value="optimal">Только оптимальные</option>
 		</select>
 		<button id="setPrice" style="margin: 10px;">Установить</button>
 	</div>
