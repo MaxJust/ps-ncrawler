@@ -202,7 +202,7 @@ nCrawler = {
 	rebindProductsData : function () {
 		var me = this;
 		me.data.action = 'ResendProductsData';
-		console.log('current request page', me.data.page);
+		// console.log('current request page', me.data.page);
 
 		me.data.page++;
 		me.requestData(function (response) {
@@ -217,7 +217,7 @@ nCrawler = {
 			if(me.data.page <= me.products_total / 100) {
 				var t_p = me.products_total / 100;
 				var prg = parseFloat(me.data.page / t_p).toFixed(2);
-				console.log(prg);
+				// console.log(prg);
 				me.pointers.rebindProgress.animate(prg);
 				me.rebindProductsData();
 			} else {
@@ -232,6 +232,13 @@ nCrawler = {
 		me.selectors.reSendProducts.fadeIn();
 		me.selectors.rebindProgress.fadeOut(500, function() {
 			me.pointers.rebindProgress.animate(0.0);
+		});
+
+		// Reget table
+		me.data.action = 'GetAllProducts';
+		me.requestData(function (response) {
+			if(response.type != 'success') {swal('Ошибка', 'Ошибка рендера таблицы', 'error');return;}
+			me.renderMainTable(response['DT']);
 		});
 	},
 
@@ -344,7 +351,7 @@ nCrawler = {
 			dataType : 'json',
 			data : me.data,
 			success : function(response) {
-				console.log('success', response);
+				// console.log('success', response);
 				if(typeof callback == 'function') callback(response)
 			}
 		});
