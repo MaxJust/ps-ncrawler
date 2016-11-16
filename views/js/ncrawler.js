@@ -192,11 +192,11 @@ nCrawler = {
 			},
 			columns : [
 				{data : 'name'},
-				{data : 'current_price'},
-				{data : 'suggest_price'},
-				{data : 'end_price'},
+				{data : 'current_price', bSearchable: false},
+				{data : 'suggest_price', bSearchable: false},
+				{data : 'end_price', bSearchable: false},
 				{data : 'status'},
-				{data : 'actions'}
+				{data : 'actions', bSearchable: false}
 			],
 			pageLength : 25,
 			lengthMenu : [25, 50, 100],
