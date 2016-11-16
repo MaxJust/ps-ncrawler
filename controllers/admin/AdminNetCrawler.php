@@ -271,6 +271,19 @@ class AdminNetCrawlerController extends ModuleAdminController
 	 */
 	public function renderView()
 	{
+		$this->context->controller->addCSS(_MODULE_DIR_ . $this->module->name . '/views/css/sweetalert2.min.css');
+		$this->context->controller->addCSS(_MODULE_DIR_ . $this->module->name . '/views/css/datatables.min.css');
+		$this->context->controller->addCSS(_MODULE_DIR_ . $this->module->name . '/views/css/jquery-editable.css');
+		$this->context->controller->addCSS(_MODULE_DIR_ . $this->module->name . '/views/css/ncrawler.css');
+
+		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/sweetalert2.min.js');
+		$this->context->controller->addJs(_MODULE_DIR_ . $this->module->name . '/views/js/datatables.min.js');
+//		$this->context->controller->addJS($this->_path . 'views/js/datatables.min.js');
+		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/poshytip.min.js');
+		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/jquery-editable-poshytip.min.js');
+		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/progressbar.min.js');
+		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/ncrawler.js');
+
 		$tpl = $this->context->smarty->createTemplate(_PS_MODULE_DIR_ . '/ncrawler/views/templates/admin/table.tpl');
 		$tpl->assign('login', $this->nc_access_login);
 		$tpl->assign('token', $this->nc_access_token);
