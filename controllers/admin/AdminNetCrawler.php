@@ -172,7 +172,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 			if(empty($suggest_price)) continue;
 
 			if($current_price < $suggest_price) {
-				$status = 'low_profit';
+				$status = 'lowprofit';
 			} elseif($current_price > $suggest_price) {
 				$status = 'bad';
 			} else {
@@ -181,6 +181,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 			$prod_json[] = [
 				'RowID'		 	=> $product['id_product'],
+				'RowStatus'		=> $status,
 				'name' 			=> $products[$product['id_product']]['title'],
 				'url' 			=> $products[$product['id_product']]['url'],
 				'current_price'	=> number_format($current_price, 2, '.', ' '),

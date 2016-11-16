@@ -3,7 +3,8 @@ nCrawler = {
 	selectors : {
 		mainTable 		: null,
 		reSendProducts 	: null,
-		rebindProgress	: null
+		rebindProgress	: null,
+		setPrices		: null
 	},
 	pointers : {
 		mainTable 		: null,
@@ -84,7 +85,7 @@ nCrawler = {
 		me.pointers.rebindProgress.text.style.fontSize = '12px';
 
 		// Save products
-		jQuery('#content').on('click', '.saveProducts', function(e) {
+		me.selectors.setPrices.on('click', function(e) {
 			e.preventDefault();
 			swal({
 				title: 'Сохранить данные?',
@@ -200,12 +201,26 @@ nCrawler = {
 			pageLength : 25,
 			lengthMenu : [25, 50, 100],
 			data : data,
-			dom: '<"main-list-top"<f><p><l><"saveWrap">>rt',
+			dom: '<"main-list-top"<f><p><l>>rt',
 			initComplete : function() {
-				jQuery('#content').find('.saveWrap').html('<a href="#" class="saveProducts">Сохранить данные</a>')
+				//// jQuery('#content').find('.saveWrap').html('<a href="#" class="saveProducts">Сохранить данные</a>')
+				// this.api().columns('.main-product-list .select-filter').every(function () {
+				// 	var column = this;
+				// 	var select = jQuery('<select class="pull-right"><option value="">Фильтр (Все)</option></select>')
+				// 		.appendTo(jQuery('.filterWrap').empty())
+				// 		.on('change', function () {
+				// 			var val = jQuery.fn.dataTable.util.escapeRegex(jQuery(this).val());
+				// 			column.search(val ? '^' + val + '$' : '', true, false).draw();
+				// 		});
+				// 	column.data().unique().sort().each(function (d, j) {
+				// 		select.append('<option value="' + d + '">' + d + '</option>')
+				// 	});
+				// });
 			},
 			fnCreatedRow : function(nRow, aData, iDataIndex) {
-				jQuery(nRow).attr('data-product-id', aData['RowID']);
+				jQuery(nRow).attr('data-product-id', aData['RowID'])
+					.attr('data-status', aData['RowStatus'])
+					.addClass(aData['RowStatus']);
 			},
 			fnDrawCallback: function(settings) {
 
@@ -274,6 +289,7 @@ nCrawler = {
 		me.selectors.mainTable 		= jQuery('#mainProductList');
 		me.selectors.reSendProducts	= jQuery('#reSendProducts');
 		me.selectors.rebindProgress	= jQuery('#rebindProgress');
+		me.selectors.setPrices		= jQuery('#setPrice');
 	}
 
 };

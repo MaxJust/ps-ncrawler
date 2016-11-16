@@ -1,7 +1,7 @@
 .resend-products-button {
 	position: absolute;
 	text-align: center;
-	padding: 30px 0;
+	margin: 30px 0;
 }
 
 .progress-container {
@@ -23,3 +23,8 @@ div#content {
 .main-list-top div {
 	float: left!important;
 }
+
+table#mainProductList.dataTable tbody tr.optimal {background-color: rgba(133, 255, 0, 0.22);}
+table#mainProductList.dataTable tbody tr.bad {background-color: rgba(255, 0, 0, 0.22);}
+table#mainProductList.dataTable tbody tr.lowprofit {background-color: rgba(255, 188, 0, 0.22);}
+table#mainProductList.dataTable tbody tr:hover {background-color: rgba(128, 128, 128, 0.5);!important;}
