@@ -5,7 +5,8 @@ nCrawler = {
 		reSendProducts 	: null,
 		rebindProgress	: null,
 		setPrices		: null,
-		updateRemote	: null
+		updateRemote	: null,
+		infoWrap		: null
 	},
 	pointers : {
 		mainTable 		: null,
@@ -45,8 +46,10 @@ nCrawler = {
 				confirmButtonText	: 'Да, обновить!'
 			}).then(function () {
 				me.data.page = 0;
-				me.selectors.rebindProgress.fadeIn();
+				me.selectors.rebindProgress.show();
+				me.selectors.infoWrap.hide();
 				me.selectors.reSendProducts.hide();
+				me.selectors.updateRemote.hide();
 				me.getProductQuantity(function (response) {me.rebindProductsData();});
 
 			}, function (dismiss) {
@@ -55,32 +58,61 @@ nCrawler = {
 			});
 		});
 
-		me.pointers.rebindProgress = new ProgressBar.Circle(rebindProgress, {
-			color: '#aaa',
-			// This has to be the same size as the maximum width to
-			// prevent clipping
-			strokeWidth: 4,
-			trailWidth: 1,
-			easing: 'easeInOut',
-			duration: 1400,
-			text: {
-				autoStyleContainer: false
-			},
-			from: { color: '#aaa', width: 3 },
-			to: { color: '#333', width: 7 },
-			// Set default step function for all animate calls
-			step: function(state, circle) {
-				circle.path.setAttribute('stroke', state.color);
-				circle.path.setAttribute('stroke-width', state.width);
+		// me.pointers.rebindProgress = new ProgressBar.Circle(rebindProgress, {
+		// 	color: '#aaa',
+		// 	// This has to be the same size as the maximum width to
+		// 	// prevent clipping
+		// 	strokeWidth: 4,
+		// 	trailWidth: 1,
+		// 	easing: 'easeInOut',
+		// 	duration: 1400,
+		// 	text: {
+		// 		autoStyleContainer: false
+		// 	},
+		// 	from: { color: '#aaa', width: 3 },
+		// 	to: { color: '#333', width: 7 },
+		// 	// Set default step function for all animate calls
+		// 	step: function(state, circle) {
+		// 		circle.path.setAttribute('stroke', state.color);
+		// 		circle.path.setAttribute('stroke-width', state.width);
+		//
+		// 		var value = Math.round(circle.value() * 100);
+		// 		if (value === 0) {
+		// 			circle.setText('');
+		// 		} else {
+		// 			circle.setText(value);
+		// 		}
+		// 	}
+		// });
 
-				var value = Math.round(circle.value() * 100);
-				if (value === 0) {
-					circle.setText('');
-				} else {
-					circle.setText(value);
+		me.pointers.rebindProgress = new ProgressBar.Line(rebindProgress, {
+				strokeWidth: 4,
+				easing: 'easeInOut',
+				duration: 1400,
+				color: '#FFEA82',
+				trailColor: '#eee',
+				trailWidth: 1,
+				svgStyle: {width: '100%', height: '100%'},
+				text: {
+					style: {
+						// Text color.
+						// Default: same as stroke color (options.color)
+						color: '#999',
+						position: 'absolute',
+						right: '0',
+						top: '30px',
+						padding: 0,
+						margin: 0,
+						transform: null
+					},
+					autoStyleContainer: false
+				},
+				from: {color: '#FFEA82'},
+				to: {color: '#ED6A5A'},
+				step: function(state, bar) {
+					bar.setText(Math.round(bar.value() * 100) + ' %');
 				}
-			}
-		});
+			});
 
 		me.pointers.rebindProgress.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 		me.pointers.rebindProgress.text.style.fontSize = '12px';
@@ -219,7 +251,10 @@ nCrawler = {
 	rebindComplete : function() {
 		var me = this;
 		me.pointers.rebindProgress.animate(1.0);
-		me.selectors.reSendProducts.fadeIn();
+		me.selectors.reSendProducts.show();
+		me.selectors.updateRemote.show();
+		me.selectors.infoWrap.show();
+
 		me.selectors.rebindProgress.fadeOut(500, function() {
 			me.pointers.rebindProgress.animate(0.0);
 		});
@@ -378,6 +413,7 @@ nCrawler = {
 		me.selectors.rebindProgress	= jQuery('#rebindProgress');
 		me.selectors.setPrices		= jQuery('#setPrice');
 		me.selectors.updateRemote	= jQuery('#updateRemote');
+		me.selectors.infoWrap		= jQuery('.infoWrap');
 	}
 
 };

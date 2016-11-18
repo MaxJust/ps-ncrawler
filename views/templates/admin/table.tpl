@@ -1,18 +1,21 @@
-{*<h2>nCrawler.com price suggests</h2>*}
 
 <div style="clear: both"></div>
+
 <div style="border-bottom: 1px solid #dedede; margin-bottom: 20px;">
 	<div style="width: 300px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">
-		<h3>nCrawler Access Settings (nCAS):</h3>
-		<div><span style="font-weight: bold;">Login:</span> {$login}</div>
-		<div><span style="font-weight: bold;">Token:</span> {$token}</div>
-		<div><span style="font-weight: bold;">Url:</span> {$url}</div>
-	</div>
-
-	<div style="height: 150px;width: 200px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">
-		<h3>Синхронизация:</h3>
+		<h3 style="text-align: center;">nCrawler Access (nCAS):</h3>
 		<div id="rebindProgress" class="progress-container" style="float: left;"></div>
-		<button id="reSendProducts" class="resend-products-button" style="float: left">Сихронизировать</button>
+		<div class="info-wrap infoWrap">
+			<div><span style="font-weight: bold;">Login:</span> {$login}</div>
+			<div><span style="font-weight: bold;">Token:</span> {$token}</div>
+			<div><span style="font-weight: bold;">Url:</span> {$url}</div>
+		</div>
+
+		<div class="ctr-buttons">
+			<button id="reSendProducts" class="resend-products-button" style="float: left">Сихронизировать</button>
+			<button id="updateRemote">Обновить сравнения</button>
+		</div>
+
 	</div>
 
 	<div style="width: 150px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">
@@ -27,20 +30,8 @@
 		<button id="setPrice" style="margin: 10px;">Установить</button>
 	</div>
 
-	<div style="width: 150px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">
-		<h3>Сервер nCrawler:</h3>
-		<button id="updateRemote">Обновить сравнения</button>
-	</div>
-
-	{*<div style="width: 150px;height: 150px;overflow: hidden;float: left;border-right: 1px solid #dedede;margin-right: 30px;">*}
-		{*<h3>Фильтры:</h3>*}
-		{*<div class="filterWrap"></div>*}
-	{*</div>*}
-
 	<div style="clear: both;"></div>
 </div>
-
-<div id="username"></div>
 
 <table id="mainProductList" class="hover main-product-list">
 	<thead>

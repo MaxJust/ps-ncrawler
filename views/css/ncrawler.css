@@ -1,14 +1,16 @@
-.resend-products-button {
-	position: absolute;
-	text-align: center;
-	margin: 30px 0;
+.ctr-buttons {
+	margin-top:10px;
+}
+
+.info-wrap {
+	height: 55px;
 }
 
 .progress-container {
 	display: none;
-	margin: 0;
-	width: 75px;
-	height: 75px;
+	width: 90%;
+	height: 15px;
+	margin: 10px 4%;
 	position: relative;
 }
 
