@@ -234,14 +234,24 @@ class AdminNetCrawlerController extends ModuleAdminController
 				$status = 'optimal';
 			}
 
+			$p_title	= $products[$product['id_product']]['title'];
+			$p_url 		= $products[$product['id_product']]['url'];
+
 			$prod_json[] = array(
 				'RowID'		 	=> $product['id_product'],
 				'RowStatus'		=> $status,
 				'select' 		=> '',
-				'name' 			=> $products[$product['id_product']]['title'],
+				'name' 			=> '
+					<a href="' . $p_url . '" class="source-link" target="_blank" data-sort="' . $p_title . '">
+					' . $p_title . '
+					</a>',
 				'url' 			=> $products[$product['id_product']]['url'],
-				'current_price'	=> number_format($current_price, 2, '.', ' '),
-				'suggest_price'	=> number_format($suggest_price, 2, '.', ' '),
+				'current_price'	=> '<span data-sort="' . $current_price . '">
+										' . number_format($current_price, 2, '.', ' ') . '
+									</span>',
+				'suggest_price'	=> '<span data-sort="' . $suggest_price . '">
+									' . number_format($suggest_price, 2, '.', ' ') . '
+									</span>',
 				'end_price'		=> '<span class="endPrice editable">' . $suggest_price . '</span>',
 				'status'		=> $status,
 				'actions'		=> '',

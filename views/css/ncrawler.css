@@ -28,6 +28,10 @@ div#content {
 	float: right!important;
 }
 
+a.source-link {
+	text-decoration: underline!important;
+}
+
 div.dataTables_filter label {text-align: left;!important;}
 div.dataTables_filter label input {width: 500px;padding: 5px;}
 

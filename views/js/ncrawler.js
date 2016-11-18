@@ -278,12 +278,12 @@ nCrawler = {
 			},
 			columns : [
 				{data : 'select', orderable: false, className: 'select-checkbox', targets: 0},
-				{data : 'name'},
-				{data : 'current_price', bSearchable: false},
-				{data : 'suggest_price', bSearchable: false},
+				{data : 'name', type: 'data-sort-string'},
+				{data : 'current_price', bSearchable: false, type: 'data-sort-numeric'},
+				{data : 'suggest_price', bSearchable: false, type: 'data-sort-numeric'},
 				{data : 'end_price', bSearchable: false},
 				{data : 'status'},
-				{data : 'actions', bSearchable: false}
+				{data : 'actions', bSearchable: false, bSortable: false}
 			],
 			pageLength : 25,
 			lengthMenu : [25, 50, 100, 500],
@@ -381,6 +381,44 @@ nCrawler = {
 	}
 
 };
+
+// Sort by data-sort attribute like numeric
+try {
+	jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+		"data-sort-numeric-pre": function ( a ) {
+			var x = a.match(/data-sort="*(-?[0-9\\.]+)/);
+			if(!x) x = 0; else x = x[1];
+			return parseFloat( x );
+		},
+		"data-sort-numeric-asc": function ( a, b ) {
+			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+		},
+		"data-sort-numeric-desc": function ( a, b ) {
+			return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+		}
+	} );
+} catch(e) {
+	console.log('Can not apply new sort type, check cmn.js');
+}
+
+// Sort by data-sort attribute like string
+try {
+	jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+		"data-sort-string-pre": function ( a ) {
+			var r = a.match(/data-sort="(.*?)"/);
+			if(r) return r[1].toLowerCase();
+			else return ''
+		},
+		"data-sort-string-asc": function ( a, b ) {
+			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+		},
+		"data-sort-string-desc": function ( a, b ) {
+			return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+		}
+	});
+} catch(e) {
+	console.log('Can not apply new sort type, check cmn.js');
+}
 
 jQuery(document).ready(function () {nCrawler.Init();});
 
