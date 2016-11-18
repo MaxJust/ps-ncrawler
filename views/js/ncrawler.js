@@ -82,22 +82,62 @@ nCrawler = {
 			}
 		});
 
-		// me.getMatchersList();
 		me.pointers.rebindProgress.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 		me.pointers.rebindProgress.text.style.fontSize = '12px';
 
 		// Save products
 		me.selectors.setPrices.on('click', function(e) {
 			e.preventDefault();
+
+			var selector;
+			var error_flag = false;
+
+			// Clear prev data
+			me.data.saveData = {};
+
+			// Determine selector
+			switch(jQuery('#setPricesType').val()) {
+				case 'lowprofit':	selector = '.lowprofit';break;
+				case 'bad':			selector = '.bad';break;
+				case 'optimal':		selector = '.optimal';break;
+				case 'selected':	selector = '.selected';break;
+				case 'all':			selector = false;break;
+				default:alert('Error happen');return;
+			}
+
+			// Prepare data
+			nCrawler.pointers.mainTable.rows(selector).eq(0).each(function (index) {
+				var jRow = nCrawler.pointers.mainTable.row(index).nodes().to$();
+
+				var product_id 			= jRow.attr('data-product-id');
+				var product_endprice 	= parseInt(jRow.find('.endPrice').html());
+
+				// Check if price exist
+				if(!product_endprice) {error_flag = true;return true;}
+
+				me.data.saveData[product_id] = product_endprice;
+
+			});
+
+			if(error_flag) {
+				swal(
+					'Fatal Error',
+					'Во время формирования списка произошла ошибка,<br> ' +
+					'пожалуйста свяжитесь с nCrawler.com<br>' +
+					'(+7[495]419-00-13)', 'error');
+				return;
+			}
+
 			swal({
 				title: 'Сохранить данные?',
-				text: "Это действие сохранит данные из поля 'конечная цена' (endprice) в базу, все продукты в таблице будут обновлены",
+				text: "Сохранить данные из поля 'конечная цена',<br>" +
+						"Продуктов для сохранения: <b>" + Object.keys(me.data.saveData).length + "</b>",
 				type: 'warning',
 				showCancelButton	: true,
 				confirmButtonColor	: '#3085d6',
 				cancelButtonColor	: '#d33',
 				cancelButtonText	: 'Нет, я передумал',
-				confirmButtonText	: 'Да, я понимаю!'
+				confirmButtonText	: 'Да, сохранить!'
 			}).then(function () {
 				me.saveProducts();
 			}, function (dismiss) {
@@ -130,50 +170,8 @@ nCrawler = {
 	saveProducts : function() {
 		var me = this;
 
-		var error_flag = false;
-
-		var selector;
-		switch(jQuery('#setPricesType').val()) {
-			case 'lowprofit':	selector = '.lowprofit';break;
-			case 'bad':			selector = '.bad';break;
-			case 'optimal':		selector = '.optimal';break;
-			case 'selected':	selector = '.selected';break;
-			case 'all':			selector = false;break;
-			default:
-				error_flag = true;
-				alert('Error happen');
-				return;
-		}
-
-		me.data.saveData 	= {};
-
-		nCrawler.pointers.mainTable.rows(selector).eq(0).each(function (index) {
-			var jRow = nCrawler.pointers.mainTable.row(index).nodes().to$();
-
-			var product_id 			= jRow.attr('data-product-id');
-			var product_endprice 	= parseInt(jRow.find('.endPrice').html());
-
-			// Check if price exist
-			if(!product_endprice) {error_flag = true;return true;}
-
-			me.data.saveData[product_id] = product_endprice;
-
-		});
-
-		if(error_flag) {
-			swal(
-				'Fatal Error',
-				'Во время формирования списка произошла ошибка,<br> ' +
-				'пожалуйста свяжитесь с nCrawler.com<br>' +
-				'(+7[495]419-00-13)',
-				'error'
-			);
-			return;
-		}
-
 		me.data.action = 'SetPrices';
 		me.requestData(function(response) {
-
 			if(response.type != 'success') {
 				swal('Ошибка', 'Во время сохранения произошла ошибка: <br>' + response.message || "неизвестная ошибка", 'error');
 				return;
@@ -188,7 +186,6 @@ nCrawler = {
 				me.renderMainTable(response['DT']);
 			});
 		});
-
 		// console.log(me.data.saveData);
 	},
 
