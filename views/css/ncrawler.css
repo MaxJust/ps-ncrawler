@@ -20,15 +20,20 @@ div#content {
 	width: 75px;
 }
 
-.main-list-top div {
+.main-list-top .pull-left {
 	float: left!important;
 }
 
+.main-list-top .pull-right {
+	float: right!important;
+}
+
 div.dataTables_filter label {text-align: left;!important;}
-div.dataTables_filter label input {width: 230px;padding: 5px;}
+div.dataTables_filter label input {width: 500px;padding: 5px;}
 
 
 table#mainProductList.dataTable tbody tr.optimal {background-color: rgba(133, 255, 0, 0.22);}
 table#mainProductList.dataTable tbody tr.bad {background-color: rgba(255, 0, 0, 0.22);}
 table#mainProductList.dataTable tbody tr.lowprofit {background-color: rgba(255, 188, 0, 0.22);}
+table#mainProductList.dataTable tbody tr.selected {background-color: rgba(0, 114, 255, 0.22);}
 table#mainProductList.dataTable tbody tr:hover {background-color: rgba(128, 128, 128, 0.5);!important;}

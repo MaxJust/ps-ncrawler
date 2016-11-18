@@ -134,18 +134,11 @@ nCrawler = {
 
 		var selector;
 		switch(jQuery('#setPricesType').val()) {
-			case 'lowprofit':
-				selector = '.lowprofit';
-				break;
-			case 'bad':
-				selector = '.bad';
-				break;
-			case 'optimal':
-				selector = '.optimal';
-				break;
-			case 'all':
-				selector = false;
-				break;
+			case 'lowprofit':	selector = '.lowprofit';break;
+			case 'bad':			selector = '.bad';break;
+			case 'optimal':		selector = '.optimal';break;
+			case 'selected':	selector = '.selected';break;
+			case 'all':			selector = false;break;
 			default:
 				error_flag = true;
 				alert('Error happen');
@@ -282,7 +275,12 @@ nCrawler = {
 				sInfoEmpty: "Нечего показывать",
 				sLengthMenu: "_MENU_"
 			},
+			select: {
+				style:    'os',
+				selector: 'td:first-child'
+			},
 			columns : [
+				{data : 'select', orderable: false, className: 'select-checkbox', targets: 0},
 				{data : 'name'},
 				{data : 'current_price', bSearchable: false},
 				{data : 'suggest_price', bSearchable: false},
@@ -291,9 +289,9 @@ nCrawler = {
 				{data : 'actions', bSearchable: false}
 			],
 			pageLength : 25,
-			lengthMenu : [25, 50, 100],
+			lengthMenu : [25, 50, 100, 500],
 			data : data,
-			dom: '<"main-list-top"<f><p><l>>rt',
+			dom: '<"main-list-top"<"pull-left"f><"pull-right"l><"pull-right"p><"clearfix">>rt',
 			initComplete : function() {
 				//// jQuery('#content').find('.saveWrap').html('<a href="#" class="saveProducts">Сохранить данные</a>')
 				// this.api().columns('.main-product-list .select-filter').every(function () {

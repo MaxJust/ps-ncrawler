@@ -19,6 +19,7 @@
 		<h3>Установить цены:</h3>
 		<select id="setPricesType" title="">
 			<option value="all">Все</option>
+			<option value="selected">Только выбранные</option>
 			<option value="bad">Только дорогие</option>
 			<option value="lowprofit">С низкой маржой</option>
 			<option value="optimal">Только оптимальные</option>
@@ -44,6 +45,7 @@
 <table id="mainProductList" class="hover main-product-list">
 	<thead>
 	<tr>
+		<th></th>
 		<th>Название</th>
 		<th>Ваша текущая цена</th>
 		<th>Предложение nCrawler</th>

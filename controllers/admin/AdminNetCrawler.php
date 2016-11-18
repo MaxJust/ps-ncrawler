@@ -19,7 +19,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->display 		= 'view';
 
 		parent::__construct();
-//		$this->context->controller->addCSS(_PS_MODULE_DIR_ . '/views/css/bootstrap.min.css');
 
 		$config = Configuration::getMultiple(array(nCrawler::NC_ACCESS_LOGIN, nCrawler::NC_ACCESS_TOKEN, nCrawler::NC_ACCESS_URL, nCrawler::NC_SOURCE_SLD));
 		$this->nc_access_login 	= $config[nCrawler::NC_ACCESS_LOGIN];
@@ -27,11 +26,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$this->nc_access_url	= $config[nCrawler::NC_ACCESS_URL];
 		$this->nc_source_sld	= $config[nCrawler::NC_SOURCE_SLD];
 	}
-
-//	public function setMedia() {
-//		parent::setMedia();
-//		$this->context->controller->addCss($this->path . '/views/css/bootstrap.min.css');
-//	}
 
 	/**
 	 * Update remote data
@@ -171,7 +165,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 	 * Get Matchers List Ajax Callback
 	 */
 	public function ajaxProcessGetMatchers() {
-//		$url = 'https://ncrawler.com:555/api/matchers/d41d8cd98f00b204e9800998ecf8427e/6393905@gmail.com/get-list';
 		$url	= self::generateNetCrawlerAccessUrl('matchers', 'get-list');
 		$data 	= self::curlRequest($url);
 		echo Tools::jsonEncode(array(
@@ -244,6 +237,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 			$prod_json[] = array(
 				'RowID'		 	=> $product['id_product'],
 				'RowStatus'		=> $status,
+				'select' 		=> '',
 				'name' 			=> $products[$product['id_product']]['title'],
 				'url' 			=> $products[$product['id_product']]['url'],
 				'current_price'	=> number_format($current_price, 2, '.', ' '),
@@ -278,7 +272,6 @@ class AdminNetCrawlerController extends ModuleAdminController
 
 		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/sweetalert2.min.js');
 		$this->context->controller->addJs(_MODULE_DIR_ . $this->module->name . '/views/js/datatables.min.js');
-//		$this->context->controller->addJS($this->_path . 'views/js/datatables.min.js');
 		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/poshytip.min.js');
 		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/jquery-editable-poshytip.min.js');
 		$this->context->controller->addJS(_MODULE_DIR_ . $this->module->name . '/views/js/progressbar.min.js');
@@ -347,6 +340,11 @@ class AdminNetCrawlerController extends ModuleAdminController
 		return $url;
 	}
 
+	/**
+	 * Helper to build access url
+	 * @param array $elements
+	 * @return string
+	 */
 	static private function build_url(array $elements) {
 		$e = $elements;
 		return
