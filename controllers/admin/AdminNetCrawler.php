@@ -130,10 +130,10 @@ class AdminNetCrawlerController extends ModuleAdminController
 			exit;
 		}
 
-		$bind_data = array();
 		$productObj = new Product();
 		$products = $productObj->getProducts($this->context->language->id, $page_size * ($page - 1), $page_size, 'id_product', 'DESC', false, false);
 
+		$items = array();
 		foreach($products as $product) {
 			$link = new Link();
 			$p_url = $link->getProductLink($product['id_product']);
@@ -145,11 +145,14 @@ class AdminNetCrawlerController extends ModuleAdminController
 				$p_url 			= self::build_url($parts);
 			}
 
-			$bind_data[$product['id_product']] = $p_url;
+			$items[] = array(
+				'id' 	=> intval($product['id_product']),
+				'url'	=> $p_url,
+			);
 		}
 
 		// Bind request
-		$nc_response = self::curlRequest($url, $bind_data);
+		$nc_response = self::curlRequest($url, array('products' => json_encode($items)));
 
 		echo Tools::jsonEncode(array(
 			'action' 		=> 'ResendProductsData',
@@ -178,7 +181,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 	 * Get Active product quantity
 	 */
 	public function ajaxProcessGetProductsQuantity() {
-		$sql = 'SELECT count(*) as prod_quant FROM ' . _DB_PREFIX_ . 'product WHERE active = 1';
+		$sql = 'SELECT count(*) as prod_quant FROM ' . _DB_PREFIX_ . 'product;';
 		if ($results = Db::getInstance()->ExecuteS($sql)) {
 			echo Tools::jsonEncode(array(
 				'type'			=> 'success',
@@ -309,7 +312,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		curl_setopt($curl, CURLOPT_TIMEOUT, $max_sec);
 		curl_setopt($curl, CURLOPT_URL, $full_url);
 		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+//		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 
 		$curl_result= curl_exec($curl);
@@ -322,6 +325,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 			$result['message'] 	= 'Error wrong CURL Code ' . $curl_code . ' in query: ' . $full_url;
 		}
 
+//		$result['send_data']		= $data;
 		$result['curl']['code'] 	= $curl_code;
 		$result['curl']['error'] 	= curl_errno($curl);
 //		$result['curl']['raw']		= $curl_result;
