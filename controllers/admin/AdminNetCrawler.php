@@ -62,7 +62,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		$columns 	= array('id_product', 'price', 'pc_price');
 		foreach($saveData as $pid => $price) {
 			$ids[] = (int) $pid;
-			$value = array((int) $pid, (int) $price, (int) $price,);
+			$value = array((int) $pid, (int) floor($price), (int) floor($price),);
 			$values[] = '(' . implode(',', $value) . ')';
 		}
 
@@ -225,7 +225,7 @@ class AdminNetCrawlerController extends ModuleAdminController
 		foreach($db_results as $product) {
 
 			$current_price = $product['price'];
-			$suggest_price =  $products[$product['id_product']]['actual_price'];
+			$suggest_price = floor($products[$product['id_product']]['actual_price']);
 
 			if(empty($suggest_price)) continue;
 
